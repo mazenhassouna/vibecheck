@@ -1,0 +1,52 @@
+{
+  "files_in_context": [
+    {
+      "path": "backend/requirements.txt",
+      "record_state": "stale",
+      "record_source": "read_tool",
+      "cline_read_date": 1776536272210,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/requirements.txt",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776536285458,
+      "cline_edit_date": 1776536285458,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/main.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776536290607,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/gemini_client.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776536296843,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776536303726,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    }
+  ],
+  "model_usage": [
+    {
+      "ts": 1776536264591,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "act"
+    }
+  ]
+}

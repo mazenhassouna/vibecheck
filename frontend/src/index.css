@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gradient-to-br from-purple-900 via-pink-900 to-orange-900 min-h-screen;
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500 bg-clip-text text-transparent;
+}
+
+.instagram-gradient {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+.card {
+  @apply bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply bg-white/10 text-white font-semibold py-3 px-6 rounded-xl hover:bg-white/20 transition-all duration-200 border border-white/20;
+}
+
+/* Upload area styling */
+.upload-zone {
+  @apply border-2 border-dashed border-white/30 rounded-xl p-8 text-center cursor-pointer transition-all duration-200 hover:border-white/50 hover:bg-white/5;
+}
+
+.upload-zone.dragover {
+  @apply border-pink-500 bg-pink-500/10;
+}
+
+/* Score circle animation */
+@keyframes score-fill {
+  from {
+    stroke-dashoffset: 283;
+  }
+}
+
+.score-circle {
+  animation: score-fill 1.5s ease-out forwards;
+}
+
+/* Pulse animation for waiting */
+@keyframes gentle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse-gentle {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}

@@ -1,0 +1,230 @@
+{
+  "files_in_context": [
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535384894,
+      "cline_edit_date": 1776535384894,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/parser.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535427867,
+      "cline_edit_date": 1776535427867,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535482820,
+      "cline_edit_date": 1776535482820,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/gemini_client.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535533594,
+      "cline_edit_date": 1776535533594,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/main.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535583265,
+      "cline_edit_date": 1776535583265,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/requirements.txt",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535612111,
+      "cline_edit_date": 1776535612111,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/package.json",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535625754,
+      "cline_edit_date": 1776535625754,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/vite.config.js",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535636772,
+      "cline_edit_date": 1776535636772,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/tailwind.config.js",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535649264,
+      "cline_edit_date": 1776535649264,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/postcss.config.js",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535657235,
+      "cline_edit_date": 1776535657235,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/index.html",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535666656,
+      "cline_edit_date": 1776535666656,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/main.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535673844,
+      "cline_edit_date": 1776535673844,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/index.css",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535696111,
+      "cline_edit_date": 1776535696111,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/api.js",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535710991,
+      "cline_edit_date": 1776535710991,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/App.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535735442,
+      "cline_edit_date": 1776535735442,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/HomePage.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535773390,
+      "cline_edit_date": 1776535773390,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/UploadPage.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535849185,
+      "cline_edit_date": 1776535849185,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/WaitingRoom.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535870870,
+      "cline_edit_date": 1776535870870,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/ResultsPage.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535917550,
+      "cline_edit_date": 1776535917550,
+      "user_edit_date": null
+    },
+    {
+      "path": "README.md",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535957629,
+      "cline_edit_date": 1776535957629,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/test_sample.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776535987540,
+      "cline_edit_date": 1776535987540,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "stale",
+      "record_source": "read_tool",
+      "cline_read_date": 1776548073616,
+      "cline_edit_date": 1776535482820,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/parser.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776548086605,
+      "cline_edit_date": 1776535427867,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776548532975,
+      "cline_edit_date": 1776548532975,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/test_sample.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776548568562,
+      "cline_edit_date": 1776548568562,
+      "user_edit_date": null
+    }
+  ],
+  "model_usage": [
+    {
+      "ts": 1776531526588,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "plan"
+    },
+    {
+      "ts": 1776535348688,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "act"
+    },
+    {
+      "ts": 1776548062591,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "plan"
+    },
+    {
+      "ts": 1776548468016,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "act"
+    }
+  ]
+}

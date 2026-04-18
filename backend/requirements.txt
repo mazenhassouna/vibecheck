@@ -1,0 +1,15 @@
+# Instagram Compatibility API Dependencies
+
+# Web framework
+fastapi>=0.65.0,<0.84.0
+uvicorn[standard]>=0.15.0
+python-multipart>=0.0.5
+
+# HTTP client for Gemini API
+requests>=2.25.0
+
+# Data validation
+pydantic>=1.8.0,<2.0.0
+
+# Type hints
+typing-extensions>=3.7.4
