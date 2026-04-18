@@ -54,36 +54,41 @@ SCORING_CONFIG = {
 # ===========================================
 # PRIVACY ALLOWLIST
 # Only these files will be processed from the Instagram export
+# Paths based on actual Instagram export structure (2024-2026)
 # ===========================================
 ALLOWED_FILES = [
-    # Likes
+    # Likes - actual paths from Instagram export
+    "your_instagram_activity/likes/liked_posts.json",
+    "your_instagram_activity/likes/liked_comments.json",
     "likes/liked_posts.json",
     "likes/liked_comments.json",
-    "your_likes/liked_posts.json",
-    "your_likes/liked_comments.json",
+    "liked_posts.json",
     
-    # Saved posts
+    # Saved posts - actual paths
+    "your_instagram_activity/saved/saved_posts.json",
+    "your_instagram_activity/saved/saved_collections.json",
     "saved/saved_posts.json",
     "saved/saved_collections.json",
-    "your_saved/saved_posts.json",
-    "your_saved/saved_collections.json",
     "saved_posts.json",
     
-    # Comments
+    # Comments - actual paths (note: can have _1, _2 suffixes)
+    "your_instagram_activity/comments/post_comments_1.json",
+    "your_instagram_activity/comments/post_comments.json",
+    "your_instagram_activity/comments/reels_comments.json",
+    "comments/post_comments_1.json",
     "comments/post_comments.json",
-    "comments/comments.json",
-    "your_comments/post_comments.json",
-    "comments.json",
+    "comments/reels_comments.json",
     
-    # Following
-    "following.json",
+    # Following - actual paths
+    "connections/followers_and_following/following.json",
     "followers_and_following/following.json",
-    "connections/following.json",
+    "following.json",
     
-    # Topics (Instagram's inferred interests)
+    # Topics - actual paths
+    "preferences/your_topics/recommended_topics.json",
+    "your_topics/recommended_topics.json",
     "your_topics/your_topics.json",
-    "topics/your_topics.json",
-    "your_topics.json",
+    "recommended_topics.json",
 ]
 
 

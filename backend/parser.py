@@ -156,12 +156,22 @@ class InstagramDataParser:
         return extracted
     
     def _extract_likes(self, data: Any) -> List[Dict]:
-        """Extract liked posts data."""
+        """Extract liked posts data.
+        
+        Actual Instagram format:
+        {
+            "likes_media_likes": [
+                {
+                    "title": "account_name",
+                    "string_list_data": [{"href": "...", "timestamp": 123}]
+                }
+            ]
+        }
+        """
         likes = []
         
         # Handle different Instagram export formats
         if isinstance(data, dict):
-            # Format: {"likes_media_likes": [...]}
             if "likes_media_likes" in data:
                 data = data["likes_media_likes"]
             elif "likes_comment_likes" in data:
@@ -173,26 +183,40 @@ class InstagramDataParser:
             for item in data:
                 like_entry = {}
                 
-                # Extract title/content
                 if isinstance(item, dict):
-                    if "title" in item:
+                    # PRIMARY: Account name is in the "title" field
+                    if "title" in item and item["title"]:
+                        like_entry["account"] = item["title"]
                         like_entry["content"] = item["title"]
+                    
+                    # Get URL and timestamp from string_list_data
                     if "string_list_data" in item:
                         for sld in item["string_list_data"]:
                             if "href" in sld:
                                 like_entry["url"] = sld["href"]
-                            if "value" in sld:
+                            if "value" in sld and "account" not in like_entry:
                                 like_entry["account"] = sld["value"]
-                    if "timestamp" in item:
-                        like_entry["timestamp"] = item["timestamp"]
+                            if "timestamp" in sld:
+                                like_entry["timestamp"] = sld["timestamp"]
                 
-                if like_entry:
+                if like_entry and "account" in like_entry:
                     likes.append(like_entry)
         
         return likes
     
     def _extract_saved(self, data: Any) -> List[Dict]:
-        """Extract saved posts data."""
+        """Extract saved posts data.
+        
+        Actual Instagram format:
+        {
+            "saved_saved_media": [
+                {
+                    "title": "account_name",
+                    "string_list_data": [{"href": "...", "timestamp": 123}]
+                }
+            ]
+        }
+        """
         saved = []
         
         if isinstance(data, dict):
@@ -208,22 +232,27 @@ class InstagramDataParser:
                 saved_entry = {}
                 
                 if isinstance(item, dict):
-                    if "title" in item:
+                    # PRIMARY: Account name is in the "title" field
+                    if "title" in item and item["title"]:
+                        saved_entry["account"] = item["title"]
                         saved_entry["content"] = item["title"]
+                    
+                    # Get URL from string_map_data or string_list_data
                     if "string_map_data" in item:
                         for key, val in item["string_map_data"].items():
-                            if "href" in val:
+                            if isinstance(val, dict) and "href" in val:
                                 saved_entry["url"] = val["href"]
+                    
                     if "string_list_data" in item:
                         for sld in item["string_list_data"]:
                             if "href" in sld:
                                 saved_entry["url"] = sld["href"]
-                            if "value" in sld:
+                            if "value" in sld and "account" not in saved_entry:
                                 saved_entry["account"] = sld["value"]
-                    if "timestamp" in item:
-                        saved_entry["timestamp"] = item["timestamp"]
+                            if "timestamp" in sld:
+                                saved_entry["timestamp"] = sld["timestamp"]
                 
-                if saved_entry:
+                if saved_entry and "account" in saved_entry:
                     saved.append(saved_entry)
         
         return saved
@@ -263,13 +292,25 @@ class InstagramDataParser:
         return comments
     
     def _extract_following(self, data: Any) -> List[Dict]:
-        """Extract following list data."""
+        """Extract following list data.
+        
+        Actual Instagram format:
+        {
+            "relationships_following": [
+                {
+                    "title": "username_here",
+                    "string_list_data": [{"href": "...", "timestamp": 123}]
+                }
+            ]
+        }
+        """
         following = []
         
         if isinstance(data, dict):
             if "relationships_following" in data:
                 data = data["relationships_following"]
             else:
+                # Try first value if it's a dict
                 data = list(data.values())[0] if data else []
         
         if isinstance(data, list):
@@ -277,18 +318,23 @@ class InstagramDataParser:
                 follow_entry = {}
                 
                 if isinstance(item, dict):
+                    # PRIMARY: Username is in the "title" field
+                    if "title" in item and item["title"]:
+                        follow_entry["username"] = item["title"]
+                    
+                    # Get URL from string_list_data
                     if "string_list_data" in item:
                         for sld in item["string_list_data"]:
-                            if "value" in sld:
-                                follow_entry["username"] = sld["value"]
                             if "href" in sld:
                                 follow_entry["url"] = sld["href"]
-                    if "value" in item:
+                            if "timestamp" in sld:
+                                follow_entry["timestamp"] = sld["timestamp"]
+                    
+                    # Fallback: check value field
+                    if "username" not in follow_entry and "value" in item:
                         follow_entry["username"] = item["value"]
-                    if "timestamp" in item:
-                        follow_entry["timestamp"] = item["timestamp"]
                 
-                if follow_entry:
+                if follow_entry and "username" in follow_entry:
                     following.append(follow_entry)
         
         return following

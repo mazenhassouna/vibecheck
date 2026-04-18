@@ -2,7 +2,7 @@
   "files_in_context": [
     {
       "path": "backend/scoring_config.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776535384894,
       "cline_edit_date": 1776535384894,
@@ -178,7 +178,7 @@
     },
     {
       "path": "backend/parser.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "read_tool",
       "cline_read_date": 1776548086605,
       "cline_edit_date": 1776535427867,
@@ -186,7 +186,7 @@
     },
     {
       "path": "backend/analyzer.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776548532975,
       "cline_edit_date": 1776548532975,
@@ -198,6 +198,62 @@
       "record_source": "cline_edited",
       "cline_read_date": 1776548568562,
       "cline_edit_date": 1776548568562,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/parser.py",
+      "record_state": "stale",
+      "record_source": "read_tool",
+      "cline_read_date": 1776550634570,
+      "cline_edit_date": 1776535427867,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "stale",
+      "record_source": "read_tool",
+      "cline_read_date": 1776550640459,
+      "cline_edit_date": 1776535384894,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776550645638,
+      "cline_edit_date": 1776548532975,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776550787492,
+      "cline_edit_date": 1776550787492,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/parser.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776550816346,
+      "cline_edit_date": 1776550816346,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/parser.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776550840897,
+      "cline_edit_date": 1776550840897,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/parser.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776550862483,
+      "cline_edit_date": 1776550862483,
       "user_edit_date": null
     }
   ],
@@ -222,6 +278,18 @@
     },
     {
       "ts": 1776548468016,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "act"
+    },
+    {
+      "ts": 1776550014636,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "plan"
+    },
+    {
+      "ts": 1776550730532,
       "model_id": "claude-opus-4-5-20251101",
       "model_provider_id": "anthropic",
       "mode": "act"
