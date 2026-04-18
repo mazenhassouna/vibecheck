@@ -8,13 +8,12 @@ Weights must sum to 1.0 for accurate percentage-based scoring.
 SCORING_CONFIG = {
     # ===========================================
     # CATEGORY WEIGHTS (must sum to 1.0)
-    # Topics removed - focusing on actual engagement data
+    # Simplified to core engagement signals
     # ===========================================
     "weights": {
-        "likes": 0.30,       # Content they actively like
-        "saved": 0.30,       # Content they intentionally save
-        "following": 0.30,   # Accounts they follow
-        "comments": 0.10,    # Engagement style similarity
+        "likes": 0.33,       # Content they actively like
+        "saved": 0.33,       # Content they intentionally save
+        "following": 0.34,   # Accounts they follow
     },
     
     # ===========================================
@@ -98,6 +97,30 @@ INTEREST_CATEGORIES = {
     "Cars & Motors": ["car", "auto", "motor", "drift", "racing", "bike", "wheelie"],
     "Nature & Animals": ["nature", "animal", "wildlife", "dog", "cat", "pet", "outdoor"],
     "Self-Improvement": ["motivation", "mindset", "success", "grind", "hustle", "entrepreneur", "growth"],
+}
+
+
+# ===========================================
+# WAYS TO CONNECT
+# Suggestions for activities based on shared interests
+# ===========================================
+WAYS_TO_CONNECT = {
+    "Photography": ["Go on a photo walk together", "Share your favorite shots", "Visit a scenic spot to shoot"],
+    "Fitness & Gym": ["Hit the gym together", "Share workout routines", "Try a new fitness class"],
+    "Sports": ["Watch a game together", "Play a pickup game", "Discuss your favorite athletes"],
+    "Tech & Coding": ["Work on a project together", "Share coding tips", "Attend a hackathon"],
+    "Food & Cooking": ["Cook a meal together", "Try a new restaurant", "Share recipes"],
+    "Travel & Adventure": ["Plan a trip together", "Share travel stories", "Explore a new place locally"],
+    "Islam & Religion": ["Attend Jummah together", "Discuss your favorite lectures", "Study Quran together"],
+    "Anime & Manga": ["Watch a series together", "Discuss your favorite manga", "Attend an anime convention"],
+    "Memes & Comedy": ["Share memes", "Watch comedy specials together", "Create content together"],
+    "Art & Design": ["Visit an art gallery", "Do a drawing session", "Share creative projects"],
+    "Music": ["Share playlists", "Go to a concert", "Discover new artists together"],
+    "Gaming": ["Play games together", "Discuss favorite games", "Watch esports together"],
+    "Fashion & Style": ["Go shopping together", "Share outfit ideas", "Discuss fashion trends"],
+    "Cars & Motors": ["Go to a car meet", "Discuss modifications", "Take a road trip"],
+    "Nature & Animals": ["Go hiking", "Visit a park", "Share pet photos"],
+    "Self-Improvement": ["Share book recommendations", "Discuss goals", "Motivate each other"],
 }
 
 

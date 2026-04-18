@@ -2,15 +2,14 @@
 Compatibility Analyzer
 
 Theme-based scoring that focuses on shared interests rather than exact account matches.
-More relaxed similarity - if both engage with the same theme, that counts!
-Exact matches within themes provide bonus points.
+Provides sentence-form examples and ways to connect for strong matches.
 
 SCORING PRINCIPLE: Identical data should ALWAYS yield 100% compatibility.
 """
 
-from typing import Dict, List, Any, Set, Tuple
+from typing import Dict, List, Any, Set
 from collections import defaultdict
-from scoring_config import SCORING_CONFIG, INTEREST_CATEGORIES, get_score_label
+from scoring_config import SCORING_CONFIG, INTEREST_CATEGORIES, WAYS_TO_CONNECT, get_score_label
 
 
 class CompatibilityAnalyzer:
@@ -27,6 +26,7 @@ class CompatibilityAnalyzer:
     def __init__(self, config: Dict = None):
         self.config = config or SCORING_CONFIG
         self.interest_categories = INTEREST_CATEGORIES
+        self.ways_to_connect = WAYS_TO_CONNECT
     
     def analyze(self, person_a: Dict, person_b: Dict) -> Dict[str, Any]:
         """
@@ -43,21 +43,19 @@ class CompatibilityAnalyzer:
         themes_b = self._categorize_accounts_to_themes(accounts_b)
         
         # Find shared themes (both have substantial engagement)
-        shared_themes = self._find_shared_themes(themes_a, themes_b, accounts_a, accounts_b)
+        shared_themes = self._find_shared_themes(themes_a, themes_b)
         
         # Calculate theme-based score
-        theme_score = self._calculate_theme_score(themes_a, themes_b, accounts_a, accounts_b)
+        theme_score = self._calculate_theme_score(themes_a, themes_b)
         
-        # Calculate individual category scores for breakdown
+        # Calculate individual category scores for breakdown (without comments)
         scores = {
             "likes": self._score_category(person_a.get("likes", []), person_b.get("likes", []), "account"),
             "saved": self._score_category(person_a.get("saved", []), person_b.get("saved", []), "account"),
             "following": self._score_category(person_a.get("following", []), person_b.get("following", []), "username"),
-            "comments": self._score_comments(person_a.get("comments", []), person_b.get("comments", [])),
         }
         
-        # Weighted base score using RELAXED theme-aware scoring
-        # Instead of pure Jaccard, blend theme similarity with exact matches
+        # Calculate blended score
         base_score = self._calculate_blended_score(scores, theme_score, weights)
         
         # Calculate bonuses
@@ -70,8 +68,8 @@ class CompatibilityAnalyzer:
         # Get label
         label = get_score_label(final_score)
         
-        # Collect top shared themes as interests
-        shared_interests = self._format_shared_themes(shared_themes)
+        # Format shared themes with examples and ways to connect
+        shared_interests = self._format_shared_themes_with_examples(shared_themes)
         
         return {
             "score": final_score,
@@ -88,6 +86,7 @@ class CompatibilityAnalyzer:
             "bonus_details": bonus_result["details"],
             "shared_interests": shared_interests,
             "base_score": round(base_score, 1),
+            "theme_score": round(theme_score, 1),
         }
     
     def _get_all_accounts(self, person_data: Dict) -> Set[str]:
@@ -109,10 +108,7 @@ class CompatibilityAnalyzer:
         return accounts
     
     def _categorize_accounts_to_themes(self, accounts: Set[str]) -> Dict[str, Set[str]]:
-        """
-        Categorize accounts into interest themes based on keywords.
-        Returns dict of {theme_name: set of accounts in that theme}
-        """
+        """Categorize accounts into interest themes based on keywords."""
         theme_accounts = defaultdict(set)
         
         for account in accounts:
@@ -120,23 +116,17 @@ class CompatibilityAnalyzer:
                 for keyword in keywords:
                     if keyword.lower() in account:
                         theme_accounts[theme].add(account)
-                        break  # Only match first keyword per theme
+                        break
         
         return dict(theme_accounts)
     
     def _find_shared_themes(
         self, 
         themes_a: Dict[str, Set[str]], 
-        themes_b: Dict[str, Set[str]],
-        accounts_a: Set[str],
-        accounts_b: Set[str]
+        themes_b: Dict[str, Set[str]]
     ) -> List[Dict]:
-        """
-        Find themes that both users engage with substantially.
-        Returns top 5 themes sorted by combined strength.
-        """
+        """Find themes that both users engage with substantially."""
         shared = []
-        
         all_themes = set(themes_a.keys()) | set(themes_b.keys())
         
         for theme in all_themes:
@@ -151,7 +141,7 @@ class CompatibilityAnalyzer:
                 # Find exact matches within this theme
                 exact_matches = accounts_in_a & accounts_in_b
                 
-                # Calculate theme strength (geometric mean to balance both sides)
+                # Calculate theme strength
                 combined_strength = (count_a * count_b) ** 0.5
                 
                 # Determine match quality
@@ -166,33 +156,27 @@ class CompatibilityAnalyzer:
                     "theme": theme,
                     "count_a": count_a,
                     "count_b": count_b,
-                    "exact_matches": len(exact_matches),
+                    "exact_matches": list(exact_matches),
                     "combined_strength": combined_strength,
                     "quality": quality,
                 })
         
         # Sort by combined strength, then by exact matches
-        shared.sort(key=lambda x: (x["combined_strength"], x["exact_matches"]), reverse=True)
+        shared.sort(key=lambda x: (x["combined_strength"], len(x["exact_matches"])), reverse=True)
         
-        # Return top 5
         return shared[:self.MAX_THEMES]
     
     def _calculate_theme_score(
         self,
         themes_a: Dict[str, Set[str]],
-        themes_b: Dict[str, Set[str]],
-        accounts_a: Set[str],
-        accounts_b: Set[str]
+        themes_b: Dict[str, Set[str]]
     ) -> float:
-        """
-        Calculate theme-based similarity score.
-        More relaxed than Jaccard - shared themes contribute to score.
-        """
+        """Calculate theme-based similarity score."""
         if not themes_a and not themes_b:
-            return 100.0  # Both have no categorized accounts = identical
+            return 100.0
         
         if not themes_a or not themes_b:
-            return 25.0  # One has themes, other doesn't
+            return 25.0
         
         all_themes = set(themes_a.keys()) | set(themes_b.keys())
         shared_theme_count = 0
@@ -202,21 +186,16 @@ class CompatibilityAnalyzer:
             accounts_in_a = themes_a.get(theme, set())
             accounts_in_b = themes_b.get(theme, set())
             
-            # Theme counts as shared if both have accounts in it
             if accounts_in_a and accounts_in_b:
                 shared_theme_count += 1
-                
-                # Exact matches within theme give bonus
                 exact = len(accounts_in_a & accounts_in_b)
-                exact_match_bonus += min(exact * 2, 10)  # Cap at 10 per theme
+                exact_match_bonus += min(exact * 2, 10)
         
-        # Base score: percentage of themes that are shared
         if len(all_themes) > 0:
             theme_overlap = shared_theme_count / len(all_themes)
         else:
             theme_overlap = 0
         
-        # Score: 70% theme overlap + 30% exact match bonus (scaled)
         theme_score = (theme_overlap * 70) + min(exact_match_bonus, 30)
         
         return min(theme_score, 100)
@@ -227,17 +206,9 @@ class CompatibilityAnalyzer:
         theme_score: float,
         weights: Dict[str, float]
     ) -> float:
-        """
-        Blend exact match scores with theme-based similarity.
-        This makes the scoring more relaxed while still rewarding exact matches.
-        """
-        # Traditional weighted score from exact matches
+        """Blend exact match scores with theme-based similarity."""
         exact_score = sum(weights[cat] * scores[cat]["score"] for cat in weights)
-        
-        # Blend: 40% exact matches + 60% theme similarity
-        # This relaxes the scoring significantly
         blended = (exact_score * 0.4) + (theme_score * 0.6)
-        
         return blended
     
     def _score_category(self, items_a: List[Dict], items_b: List[Dict], key: str) -> Dict:
@@ -253,7 +224,6 @@ class CompatibilityAnalyzer:
             if item.get(key)
         )
         
-        # Jaccard similarity
         if not set_a and not set_b:
             similarity = 1.0
         elif not set_a or not set_b:
@@ -271,60 +241,6 @@ class CompatibilityAnalyzer:
             "overlap_items": list(overlap)[:20],
             "total_a": len(set_a),
             "total_b": len(set_b),
-        }
-    
-    def _score_comments(self, comments_a: List[Dict], comments_b: List[Dict]) -> Dict:
-        """Score comments based on engagement style similarity."""
-        if not comments_a and not comments_b:
-            return {"score": 100.0, "style_matches": ["Both have no comment history"]}
-        
-        if not comments_a or not comments_b:
-            return {"score": 50.0, "style_matches": []}
-        
-        style_a = self._analyze_comment_style(comments_a)
-        style_b = self._analyze_comment_style(comments_b)
-        
-        matches = []
-        total_attributes = 4
-        
-        if style_a["length_category"] == style_b["length_category"]:
-            matches.append(f"Similar comment length ({style_a['length_category']})")
-        
-        if style_a["emoji_heavy"] == style_b["emoji_heavy"]:
-            desc = "emoji enthusiasts" if style_a["emoji_heavy"] else "minimal emoji users"
-            matches.append(f"Both are {desc}")
-        
-        if style_a["asks_questions"] == style_b["asks_questions"]:
-            desc = "curious (ask questions)" if style_a["asks_questions"] else "statement-makers"
-            matches.append(f"Both are {desc}")
-        
-        if style_a["engagement_level"] == style_b["engagement_level"]:
-            matches.append(f"Similar engagement level ({style_a['engagement_level']})")
-        
-        score = (len(matches) / total_attributes) * 100
-        
-        return {"score": round(score, 1), "style_matches": matches}
-    
-    def _analyze_comment_style(self, comments: List[Dict]) -> Dict:
-        """Analyze commenting style."""
-        if not comments:
-            return {"length_category": "unknown", "emoji_heavy": False, "asks_questions": False, "engagement_level": "unknown"}
-        
-        total = len(comments)
-        avg_length = sum(c.get("length", 0) for c in comments) / total if total else 0
-        emoji_count = sum(1 for c in comments if c.get("has_emoji", False))
-        question_count = sum(1 for c in comments if c.get("has_question", False))
-        
-        length_category = "short" if avg_length < 20 else "medium" if avg_length < 50 else "long"
-        emoji_heavy = (emoji_count / total) > 0.3 if total else False
-        asks_questions = (question_count / total) > 0.2 if total else False
-        engagement_level = "casual" if total < 50 else "moderate" if total < 200 else "active"
-        
-        return {
-            "length_category": length_category,
-            "emoji_heavy": emoji_heavy,
-            "asks_questions": asks_questions,
-            "engagement_level": engagement_level,
         }
     
     def _calculate_bonuses(self, scores: Dict, shared_themes: List[Dict]) -> Dict:
@@ -357,8 +273,8 @@ class CompatibilityAnalyzer:
         
         return {"total": total, "details": details}
     
-    def _format_shared_themes(self, shared_themes: List[Dict]) -> List[Dict]:
-        """Format shared themes for display."""
+    def _format_shared_themes_with_examples(self, shared_themes: List[Dict]) -> List[Dict]:
+        """Format shared themes with sentence examples and ways to connect."""
         emoji_map = {
             "Photography": "📷",
             "Fitness & Gym": "💪",
@@ -383,21 +299,54 @@ class CompatibilityAnalyzer:
             theme = theme_data["theme"]
             emoji = emoji_map.get(theme, "🎯")
             quality = theme_data["quality"]
-            exact = theme_data["exact_matches"]
+            exact_matches = theme_data["exact_matches"]
             
-            if exact > 0:
-                desc = f"{emoji} {theme} — {quality} ({exact} exact)"
-            else:
-                desc = f"{emoji} {theme} — {quality}"
+            # Create sentence-form examples for exact matches
+            examples = []
+            for account in exact_matches[:3]:  # Show up to 3 examples
+                examples.append(self._create_example_sentence(theme, account))
+            
+            # Get ways to connect
+            connect_ideas = self.ways_to_connect.get(theme, [])[:2]
             
             formatted.append({
                 "type": "interest",
-                "value": theme,
-                "description": desc,
+                "theme": theme,
+                "emoji": emoji,
                 "quality": quality,
+                "examples": examples,
+                "ways_to_connect": connect_ideas,
+                "description": f"{emoji} {theme}",
             })
         
         return formatted
+    
+    def _create_example_sentence(self, theme: str, account: str) -> str:
+        """Create a natural sentence describing the shared account."""
+        # Clean up account name for display
+        display_name = account.replace("_", " ").replace(".", " ").title()
+        
+        # Theme-specific sentence templates
+        templates = {
+            "Photography": f"You both enjoy {display_name}'s photography",
+            "Fitness & Gym": f"You both follow {display_name} for fitness content",
+            "Sports": f"You both follow {display_name} for sports content",
+            "Tech & Coding": f"You both follow {display_name} for tech content",
+            "Food & Cooking": f"You both follow {display_name} for food content",
+            "Travel & Adventure": f"You both follow {display_name} for travel inspiration",
+            "Islam & Religion": f"You both follow {display_name} for Islamic content",
+            "Anime & Manga": f"You both enjoy {display_name}'s anime content",
+            "Memes & Comedy": f"You both find {display_name} funny",
+            "Art & Design": f"You both appreciate {display_name}'s art",
+            "Music": f"You both enjoy {display_name}'s music",
+            "Gaming": f"You both follow {display_name} for gaming",
+            "Fashion & Style": f"You both follow {display_name} for style inspiration",
+            "Cars & Motors": f"You both follow {display_name} for car content",
+            "Nature & Animals": f"You both enjoy {display_name}'s nature content",
+            "Self-Improvement": f"You both follow {display_name} for motivation",
+        }
+        
+        return templates.get(theme, f"You both follow @{account}")
 
 
 # Convenience function

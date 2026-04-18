@@ -266,7 +266,7 @@
     },
     {
       "path": "backend/scoring_config.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776551486327,
       "cline_edit_date": 1776551486327,
@@ -330,7 +330,7 @@
     },
     {
       "path": "backend/analyzer.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776552072679,
       "cline_edit_date": 1776552072679,
@@ -338,10 +338,42 @@
     },
     {
       "path": "frontend/src/components/ResultsPage.jsx",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776552119130,
       "cline_edit_date": 1776552119130,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776552485782,
+      "cline_edit_date": 1776552485782,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776552515577,
+      "cline_edit_date": 1776552515577,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776552576465,
+      "cline_edit_date": 1776552576465,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/ResultsPage.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776552611855,
+      "cline_edit_date": 1776552611855,
       "user_edit_date": null
     }
   ],
@@ -402,6 +434,18 @@
     },
     {
       "ts": 1776552005499,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "act"
+    },
+    {
+      "ts": 1776552399418,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "plan"
+    },
+    {
+      "ts": 1776552471230,
       "model_id": "claude-opus-4-5-20251101",
       "model_provider_id": "anthropic",
       "mode": "act"

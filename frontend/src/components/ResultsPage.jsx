@@ -2,10 +2,9 @@ export default function ResultsPage({ result, onStartOver }) {
   const { score, label, breakdown, shared_interests, bonus_points } = result
 
   // Calculate circle progress
-  const circumference = 2 * Math.PI * 45 // radius = 45
+  const circumference = 2 * Math.PI * 45
   const strokeDashoffset = circumference - (score / 100) * circumference
 
-  // Get score color
   const getScoreColor = () => {
     if (score >= 85) return 'text-green-400'
     if (score >= 70) return 'text-emerald-400'
@@ -27,7 +26,6 @@ export default function ResultsPage({ result, onStartOver }) {
       {/* Score display */}
       <div className="card p-8 text-center">
         <div className="relative w-40 h-40 mx-auto mb-6">
-          {/* Background circle */}
           <svg className="w-full h-full transform -rotate-90">
             <circle
               cx="80"
@@ -37,7 +35,6 @@ export default function ResultsPage({ result, onStartOver }) {
               strokeWidth="10"
               fill="none"
             />
-            {/* Progress circle */}
             <circle
               cx="80"
               cy="80"
@@ -51,7 +48,6 @@ export default function ResultsPage({ result, onStartOver }) {
               className="score-circle"
             />
           </svg>
-          {/* Score text */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className={`text-4xl font-bold ${getScoreColor()}`}>
               {score}%
@@ -71,18 +67,18 @@ export default function ResultsPage({ result, onStartOver }) {
         )}
       </div>
 
-      {/* Shared interests */}
+      {/* Shared interests with examples */}
       {shared_interests && shared_interests.length > 0 && (
         <div className="card p-6">
           <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             🎯 What You Have in Common
           </h3>
           
-          <div className="space-y-3">
-            {shared_interests.slice(0, 5).map((interest, index) => (
+          <div className="space-y-4">
+            {shared_interests.map((interest, index) => (
               <div 
                 key={index}
-                className={`flex items-center justify-between p-4 rounded-lg ${
+                className={`p-4 rounded-lg ${
                   interest.quality === 'Strong match'
                     ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30'
                     : interest.quality === 'Good match'
@@ -90,19 +86,48 @@ export default function ResultsPage({ result, onStartOver }) {
                     : 'bg-white/5 border border-white/10'
                 }`}
               >
-                <span className="text-white font-medium">{interest.description}</span>
-                {interest.quality === 'Strong match' && (
-                  <span className="text-xs bg-green-500/30 text-green-300 px-2 py-1 rounded-full">⭐ Strong</span>
+                {/* Theme header */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-semibold text-lg">
+                    {interest.emoji} {interest.theme}
+                  </span>
+                  {interest.quality === 'Strong match' && (
+                    <span className="text-xs bg-green-500/30 text-green-300 px-2 py-1 rounded-full">
+                      ⭐ Strong
+                    </span>
+                  )}
+                </div>
+                
+                {/* Examples */}
+                {interest.examples && interest.examples.length > 0 && (
+                  <div className="space-y-1 mb-3">
+                    {interest.examples.map((example, i) => (
+                      <p key={i} className="text-white/80 text-sm pl-2 border-l-2 border-white/20">
+                        {example}
+                      </p>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Ways to connect */}
+                {interest.ways_to_connect && interest.ways_to_connect.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-white/10">
+                    <p className="text-xs text-white/50 mb-2">Ways to connect:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {interest.ways_to_connect.map((idea, i) => (
+                        <span 
+                          key={i}
+                          className="text-xs bg-white/10 text-white/70 px-3 py-1 rounded-full"
+                        >
+                          💡 {idea}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             ))}
           </div>
-          
-          {shared_interests.length > 15 && (
-            <p className="text-white/50 text-sm mt-4 text-center">
-              + {shared_interests.length - 15} more shared interests
-            </p>
-          )}
         </div>
       )}
 
@@ -112,13 +137,17 @@ export default function ResultsPage({ result, onStartOver }) {
           📊 Score Breakdown
         </h3>
         
+        <p className="text-white/50 text-xs mb-4">
+          Your score blends exact matches (40%) with shared interest themes (60%)
+        </p>
+        
         <div className="space-y-4">
           {Object.entries(breakdown).map(([category, data]) => (
             <div key={category}>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-white/70 capitalize">{category}</span>
                 <span className="text-white">
-                  {data.score}% × {(data.weight * 100).toFixed(0)}% = {data.weighted_contribution}
+                  {data.score}% similarity
                 </span>
               </div>
               <div className="h-2 bg-white/10 rounded-full overflow-hidden">
@@ -139,24 +168,6 @@ export default function ResultsPage({ result, onStartOver }) {
             </div>
           )}
         </div>
-      </div>
-
-      {/* Category explanation */}
-      <div className="card p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">
-          📖 What the categories mean
-        </h3>
-        
-        <div className="space-y-3 text-sm text-white/60">
-          <p><strong className="text-white">Likes (30%):</strong> Accounts whose content you both like</p>
-          <p><strong className="text-white">Saved (30%):</strong> Posts you've both saved for later</p>
-          <p><strong className="text-white">Following (30%):</strong> Accounts you both follow</p>
-          <p><strong className="text-white">Comments (10%):</strong> How similarly you engage (length, emoji use, etc.)</p>
-        </div>
-        
-        <p className="text-xs text-white/40 mt-4">
-          Interests are derived from the accounts you both engage with.
-        </p>
       </div>
 
       {/* Action buttons */}
