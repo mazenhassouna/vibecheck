@@ -3,14 +3,12 @@
 <!-- Edit this markdown file to update your focus chain list -->
 <!-- Use the format: - [ ] for incomplete items and - [x] for completed items -->
 
-- [x] Remove topics from scoring_config.py (weights)
-- [x] Remove topics from ALLOWED_FILES in scoring_config.py
-- [x] Add interest categories to scoring_config.py
-- [x] Update parser.py to remove topics categorization
-- [x] Update analyzer.py to remove topics and add interest categorization
-- [x] Update frontend ResultsPage.jsx - remove conversation starters
-- [x] Update shared interests display in ResultsPage.jsx
-- [x] Update category explanation in ResultsPage.jsx
-- [x] Fix undefined summary variable
+- [x] Update analyzer.py to use theme-based scoring
+- [x] Add theme strength calculation (count accounts per theme per person)
+- [x] Add threshold filtering (only show if both have >= 2 accounts)
+- [x] Limit to top 5 themes sorted by combined strength
+- [x] Add exact match bonus within themes
+- [x] Relaxed scoring: 40% exact + 60% theme similarity
+- [x] Update frontend to display theme quality indicators
 
 <!-- Save this file and the focus chain list will be updated in the task -->

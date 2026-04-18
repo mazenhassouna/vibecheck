@@ -79,16 +79,21 @@ export default function ResultsPage({ result, onStartOver }) {
           </h3>
           
           <div className="space-y-3">
-            {shared_interests.slice(0, 15).map((interest, index) => (
+            {shared_interests.slice(0, 5).map((interest, index) => (
               <div 
                 key={index}
-                className={`flex items-center gap-3 p-3 rounded-lg ${
-                  interest.type === 'interest' 
-                    ? 'bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-white/10' 
-                    : 'bg-white/5'
+                className={`flex items-center justify-between p-4 rounded-lg ${
+                  interest.quality === 'Strong match'
+                    ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30'
+                    : interest.quality === 'Good match'
+                    ? 'bg-gradient-to-r from-pink-500/15 to-purple-500/15 border border-pink-500/20'
+                    : 'bg-white/5 border border-white/10'
                 }`}
               >
-                <span className="text-white">{interest.description}</span>
+                <span className="text-white font-medium">{interest.description}</span>
+                {interest.quality === 'Strong match' && (
+                  <span className="text-xs bg-green-500/30 text-green-300 px-2 py-1 rounded-full">⭐ Strong</span>
+                )}
               </div>
             ))}
           </div>

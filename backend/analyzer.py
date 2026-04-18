@@ -1,22 +1,28 @@
 """
 Compatibility Analyzer
 
-Handles feature extraction and scoring algorithm with configurable weights and bonuses.
-Uses Jaccard similarity for category comparisons.
-Derives interest categories from account names to show meaningful shared interests.
+Theme-based scoring that focuses on shared interests rather than exact account matches.
+More relaxed similarity - if both engage with the same theme, that counts!
+Exact matches within themes provide bonus points.
 
 SCORING PRINCIPLE: Identical data should ALWAYS yield 100% compatibility.
 """
 
 from typing import Dict, List, Any, Set, Tuple
+from collections import defaultdict
 from scoring_config import SCORING_CONFIG, INTEREST_CATEGORIES, get_score_label
 
 
 class CompatibilityAnalyzer:
     """
     Analyzes compatibility between two Instagram profiles.
-    Uses configurable weights and Jaccard similarity.
+    Uses theme-based scoring for more meaningful results.
     """
+    
+    # Minimum accounts needed in a theme for it to count
+    THEME_THRESHOLD = 2
+    # Maximum themes to display
+    MAX_THEMES = 5
     
     def __init__(self, config: Dict = None):
         self.config = config or SCORING_CONFIG
@@ -24,35 +30,38 @@ class CompatibilityAnalyzer:
     
     def analyze(self, person_a: Dict, person_b: Dict) -> Dict[str, Any]:
         """
-        Calculate compatibility between two people.
-        
-        Args:
-            person_a: Parsed Instagram data for person A
-            person_b: Parsed Instagram data for person B
-            
-        Returns:
-            Compatibility result with score, breakdown, and shared interests
+        Calculate compatibility between two people using theme-based scoring.
         """
         weights = self.config["weights"]
         
-        # Calculate individual category scores
+        # Extract all accounts for each person
+        accounts_a = self._get_all_accounts(person_a)
+        accounts_b = self._get_all_accounts(person_b)
+        
+        # Categorize accounts into themes
+        themes_a = self._categorize_accounts_to_themes(accounts_a)
+        themes_b = self._categorize_accounts_to_themes(accounts_b)
+        
+        # Find shared themes (both have substantial engagement)
+        shared_themes = self._find_shared_themes(themes_a, themes_b, accounts_a, accounts_b)
+        
+        # Calculate theme-based score
+        theme_score = self._calculate_theme_score(themes_a, themes_b, accounts_a, accounts_b)
+        
+        # Calculate individual category scores for breakdown
         scores = {
-            "likes": self._score_likes(person_a.get("likes", []), person_b.get("likes", [])),
-            "saved": self._score_saved(person_a.get("saved", []), person_b.get("saved", [])),
-            "following": self._score_following(person_a.get("following", []), person_b.get("following", [])),
+            "likes": self._score_category(person_a.get("likes", []), person_b.get("likes", []), "account"),
+            "saved": self._score_category(person_a.get("saved", []), person_b.get("saved", []), "account"),
+            "following": self._score_category(person_a.get("following", []), person_b.get("following", []), "username"),
             "comments": self._score_comments(person_a.get("comments", []), person_b.get("comments", [])),
         }
         
-        # Calculate weighted base score
-        base_score = sum(weights[cat] * scores[cat]["score"] for cat in weights)
-        
-        # Derive interest categories from all accounts
-        interests_a = self._derive_interests(person_a)
-        interests_b = self._derive_interests(person_b)
-        shared_interest_categories = interests_a & interests_b
+        # Weighted base score using RELAXED theme-aware scoring
+        # Instead of pure Jaccard, blend theme similarity with exact matches
+        base_score = self._calculate_blended_score(scores, theme_score, weights)
         
         # Calculate bonuses
-        bonus_result = self._calculate_bonuses(person_a, person_b, scores, shared_interest_categories)
+        bonus_result = self._calculate_bonuses(scores, shared_themes)
         bonus_points = min(bonus_result["total"], self.config["max_bonus"])
         
         # Final score (rounded to whole number, capped at 100)
@@ -61,8 +70,8 @@ class CompatibilityAnalyzer:
         # Get label
         label = get_score_label(final_score)
         
-        # Collect shared interests (themes, not just account names)
-        shared_interests = self._collect_shared_interests(scores, shared_interest_categories)
+        # Collect top shared themes as interests
+        shared_interests = self._format_shared_themes(shared_themes)
         
         return {
             "score": final_score,
@@ -81,157 +90,196 @@ class CompatibilityAnalyzer:
             "base_score": round(base_score, 1),
         }
     
-    def _derive_interests(self, person_data: Dict) -> Set[str]:
-        """
-        Derive interest categories from all account names.
-        Looks at following, likes, and saved to build interest profile.
-        """
-        all_accounts = set()
+    def _get_all_accounts(self, person_data: Dict) -> Set[str]:
+        """Extract all account names from all categories."""
+        accounts = set()
         
-        # Collect all account names
         for item in person_data.get("following", []):
-            if "username" in item:
-                all_accounts.add(item["username"].lower())
+            if item.get("username"):
+                accounts.add(item["username"].lower().strip())
         
         for item in person_data.get("likes", []):
-            if "account" in item:
-                all_accounts.add(item["account"].lower())
+            if item.get("account"):
+                accounts.add(item["account"].lower().strip())
         
         for item in person_data.get("saved", []):
-            if "account" in item:
-                all_accounts.add(item["account"].lower())
-        
-        # Match accounts to interest categories
-        matched_interests = set()
-        for account in all_accounts:
-            for category, keywords in self.interest_categories.items():
-                for keyword in keywords:
-                    if keyword.lower() in account:
-                        matched_interests.add(category)
-                        break
-        
-        return matched_interests
-    
-    def _jaccard_similarity(self, set_a: Set, set_b: Set) -> float:
-        """
-        Calculate Jaccard similarity between two sets.
-        
-        IMPORTANT: If both sets are empty OR identical, this returns 1.0 (100% match).
-        """
-        if not set_a and not set_b:
-            return 1.0
-        
-        if not set_a or not set_b:
-            return 0.0
-        
-        intersection = set_a & set_b
-        union = set_a | set_b
-        
-        if not union:
-            return 1.0
-        
-        return len(intersection) / len(union)
-    
-    def _extract_accounts(self, likes_or_saved: List[Dict]) -> Set[str]:
-        """Extract account names from likes or saved data."""
-        accounts = set()
-        for item in likes_or_saved:
-            if "account" in item and item["account"]:
+            if item.get("account"):
                 accounts.add(item["account"].lower().strip())
-            elif "username" in item and item["username"]:
-                accounts.add(item["username"].lower().strip())
-            elif "content" in item and item["content"]:
-                accounts.add(item["content"].lower().strip()[:50])
-            elif "url" in item and item["url"]:
-                accounts.add(item["url"].lower().strip())
+        
         return accounts
     
-    def _extract_urls(self, data: List[Dict]) -> Set[str]:
-        """Extract URLs from data for exact matching."""
-        urls = set()
-        for item in data:
-            if "url" in item and item["url"]:
-                urls.add(item["url"].lower().strip())
-        return urls
-    
-    def _score_likes(self, likes_a: List[Dict], likes_b: List[Dict]) -> Dict:
-        """Score likes category using Jaccard similarity."""
-        accounts_a = self._extract_accounts(likes_a)
-        accounts_b = self._extract_accounts(likes_b)
+    def _categorize_accounts_to_themes(self, accounts: Set[str]) -> Dict[str, Set[str]]:
+        """
+        Categorize accounts into interest themes based on keywords.
+        Returns dict of {theme_name: set of accounts in that theme}
+        """
+        theme_accounts = defaultdict(set)
         
-        similarity = self._jaccard_similarity(accounts_a, accounts_b)
-        overlap = accounts_a & accounts_b
+        for account in accounts:
+            for theme, keywords in self.interest_categories.items():
+                for keyword in keywords:
+                    if keyword.lower() in account:
+                        theme_accounts[theme].add(account)
+                        break  # Only match first keyword per theme
+        
+        return dict(theme_accounts)
+    
+    def _find_shared_themes(
+        self, 
+        themes_a: Dict[str, Set[str]], 
+        themes_b: Dict[str, Set[str]],
+        accounts_a: Set[str],
+        accounts_b: Set[str]
+    ) -> List[Dict]:
+        """
+        Find themes that both users engage with substantially.
+        Returns top 5 themes sorted by combined strength.
+        """
+        shared = []
+        
+        all_themes = set(themes_a.keys()) | set(themes_b.keys())
+        
+        for theme in all_themes:
+            accounts_in_a = themes_a.get(theme, set())
+            accounts_in_b = themes_b.get(theme, set())
+            
+            count_a = len(accounts_in_a)
+            count_b = len(accounts_in_b)
+            
+            # Both must have at least threshold accounts in this theme
+            if count_a >= self.THEME_THRESHOLD and count_b >= self.THEME_THRESHOLD:
+                # Find exact matches within this theme
+                exact_matches = accounts_in_a & accounts_in_b
+                
+                # Calculate theme strength (geometric mean to balance both sides)
+                combined_strength = (count_a * count_b) ** 0.5
+                
+                # Determine match quality
+                if len(exact_matches) >= 3:
+                    quality = "Strong match"
+                elif len(exact_matches) >= 1:
+                    quality = "Good match"
+                else:
+                    quality = "Shared interest"
+                
+                shared.append({
+                    "theme": theme,
+                    "count_a": count_a,
+                    "count_b": count_b,
+                    "exact_matches": len(exact_matches),
+                    "combined_strength": combined_strength,
+                    "quality": quality,
+                })
+        
+        # Sort by combined strength, then by exact matches
+        shared.sort(key=lambda x: (x["combined_strength"], x["exact_matches"]), reverse=True)
+        
+        # Return top 5
+        return shared[:self.MAX_THEMES]
+    
+    def _calculate_theme_score(
+        self,
+        themes_a: Dict[str, Set[str]],
+        themes_b: Dict[str, Set[str]],
+        accounts_a: Set[str],
+        accounts_b: Set[str]
+    ) -> float:
+        """
+        Calculate theme-based similarity score.
+        More relaxed than Jaccard - shared themes contribute to score.
+        """
+        if not themes_a and not themes_b:
+            return 100.0  # Both have no categorized accounts = identical
+        
+        if not themes_a or not themes_b:
+            return 25.0  # One has themes, other doesn't
+        
+        all_themes = set(themes_a.keys()) | set(themes_b.keys())
+        shared_theme_count = 0
+        exact_match_bonus = 0
+        
+        for theme in all_themes:
+            accounts_in_a = themes_a.get(theme, set())
+            accounts_in_b = themes_b.get(theme, set())
+            
+            # Theme counts as shared if both have accounts in it
+            if accounts_in_a and accounts_in_b:
+                shared_theme_count += 1
+                
+                # Exact matches within theme give bonus
+                exact = len(accounts_in_a & accounts_in_b)
+                exact_match_bonus += min(exact * 2, 10)  # Cap at 10 per theme
+        
+        # Base score: percentage of themes that are shared
+        if len(all_themes) > 0:
+            theme_overlap = shared_theme_count / len(all_themes)
+        else:
+            theme_overlap = 0
+        
+        # Score: 70% theme overlap + 30% exact match bonus (scaled)
+        theme_score = (theme_overlap * 70) + min(exact_match_bonus, 30)
+        
+        return min(theme_score, 100)
+    
+    def _calculate_blended_score(
+        self, 
+        scores: Dict[str, Dict],
+        theme_score: float,
+        weights: Dict[str, float]
+    ) -> float:
+        """
+        Blend exact match scores with theme-based similarity.
+        This makes the scoring more relaxed while still rewarding exact matches.
+        """
+        # Traditional weighted score from exact matches
+        exact_score = sum(weights[cat] * scores[cat]["score"] for cat in weights)
+        
+        # Blend: 40% exact matches + 60% theme similarity
+        # This relaxes the scoring significantly
+        blended = (exact_score * 0.4) + (theme_score * 0.6)
+        
+        return blended
+    
+    def _score_category(self, items_a: List[Dict], items_b: List[Dict], key: str) -> Dict:
+        """Score a category using Jaccard similarity on exact matches."""
+        set_a = set(
+            item.get(key, "").lower().strip() 
+            for item in items_a 
+            if item.get(key)
+        )
+        set_b = set(
+            item.get(key, "").lower().strip() 
+            for item in items_b 
+            if item.get(key)
+        )
+        
+        # Jaccard similarity
+        if not set_a and not set_b:
+            similarity = 1.0
+        elif not set_a or not set_b:
+            similarity = 0.0
+        else:
+            intersection = set_a & set_b
+            union = set_a | set_b
+            similarity = len(intersection) / len(union) if union else 1.0
+        
+        overlap = set_a & set_b
         
         return {
             "score": round(similarity * 100, 1),
             "overlap_count": len(overlap),
             "overlap_items": list(overlap)[:20],
-            "total_a": len(accounts_a),
-            "total_b": len(accounts_b),
-        }
-    
-    def _score_saved(self, saved_a: List[Dict], saved_b: List[Dict]) -> Dict:
-        """Score saved posts category using Jaccard similarity."""
-        accounts_a = self._extract_accounts(saved_a)
-        accounts_b = self._extract_accounts(saved_b)
-        
-        urls_a = self._extract_urls(saved_a)
-        urls_b = self._extract_urls(saved_b)
-        exact_matches = urls_a & urls_b
-        
-        similarity = self._jaccard_similarity(accounts_a, accounts_b)
-        overlap = accounts_a & accounts_b
-        
-        return {
-            "score": round(similarity * 100, 1),
-            "overlap_count": len(overlap),
-            "overlap_items": list(overlap)[:20],
-            "exact_post_matches": len(exact_matches),
-            "total_a": len(accounts_a),
-            "total_b": len(accounts_b),
-        }
-    
-    def _score_following(self, following_a: List[Dict], following_b: List[Dict]) -> Dict:
-        """Score following category using Jaccard similarity."""
-        usernames_a = set(
-            item.get("username", "").lower().strip() 
-            for item in following_a 
-            if item.get("username")
-        )
-        usernames_b = set(
-            item.get("username", "").lower().strip() 
-            for item in following_b 
-            if item.get("username")
-        )
-        
-        direct_overlap = usernames_a & usernames_b
-        jaccard_score = self._jaccard_similarity(usernames_a, usernames_b) * 100
-        
-        return {
-            "score": round(jaccard_score, 1),
-            "direct_overlap_count": len(direct_overlap),
-            "direct_overlap_items": list(direct_overlap)[:20],
-            "total_a": len(usernames_a),
-            "total_b": len(usernames_b),
+            "total_a": len(set_a),
+            "total_b": len(set_b),
         }
     
     def _score_comments(self, comments_a: List[Dict], comments_b: List[Dict]) -> Dict:
         """Score comments based on engagement style similarity."""
         if not comments_a and not comments_b:
-            return {
-                "score": 100.0,
-                "style_matches": ["Both have no comment history"],
-                "style_a": {},
-                "style_b": {},
-            }
+            return {"score": 100.0, "style_matches": ["Both have no comment history"]}
         
         if not comments_a or not comments_b:
-            return {
-                "score": 50.0,
-                "style_matches": [],
-                "style_a": self._analyze_comment_style(comments_a) if comments_a else {},
-                "style_b": self._analyze_comment_style(comments_b) if comments_b else {},
-            }
+            return {"score": 50.0, "style_matches": []}
         
         style_a = self._analyze_comment_style(comments_a)
         style_b = self._analyze_comment_style(comments_b)
@@ -243,74 +291,50 @@ class CompatibilityAnalyzer:
             matches.append(f"Similar comment length ({style_a['length_category']})")
         
         if style_a["emoji_heavy"] == style_b["emoji_heavy"]:
-            emoji_desc = "emoji enthusiasts" if style_a["emoji_heavy"] else "minimal emoji users"
-            matches.append(f"Both are {emoji_desc}")
+            desc = "emoji enthusiasts" if style_a["emoji_heavy"] else "minimal emoji users"
+            matches.append(f"Both are {desc}")
         
         if style_a["asks_questions"] == style_b["asks_questions"]:
-            q_desc = "curious (ask questions)" if style_a["asks_questions"] else "statement-makers"
-            matches.append(f"Both are {q_desc}")
+            desc = "curious (ask questions)" if style_a["asks_questions"] else "statement-makers"
+            matches.append(f"Both are {desc}")
         
         if style_a["engagement_level"] == style_b["engagement_level"]:
             matches.append(f"Similar engagement level ({style_a['engagement_level']})")
         
         score = (len(matches) / total_attributes) * 100
         
-        return {
-            "score": round(score, 1),
-            "style_matches": matches,
-            "style_a": style_a,
-            "style_b": style_b,
-        }
+        return {"score": round(score, 1), "style_matches": matches}
     
     def _analyze_comment_style(self, comments: List[Dict]) -> Dict:
-        """Analyze the commenting style of a user."""
+        """Analyze commenting style."""
         if not comments:
-            return {
-                "length_category": "unknown",
-                "emoji_heavy": False,
-                "asks_questions": False,
-                "engagement_level": "unknown",
-            }
+            return {"length_category": "unknown", "emoji_heavy": False, "asks_questions": False, "engagement_level": "unknown"}
         
         total = len(comments)
-        avg_length = sum(c.get("length", 0) for c in comments) / total if total > 0 else 0
+        avg_length = sum(c.get("length", 0) for c in comments) / total if total else 0
         emoji_count = sum(1 for c in comments if c.get("has_emoji", False))
         question_count = sum(1 for c in comments if c.get("has_question", False))
         
-        if avg_length < 20:
-            length_category = "short"
-        elif avg_length < 50:
-            length_category = "medium"
-        else:
-            length_category = "long"
-        
-        emoji_heavy = (emoji_count / total) > 0.3 if total > 0 else False
-        asks_questions = (question_count / total) > 0.2 if total > 0 else False
-        
-        if total < 50:
-            engagement_level = "casual"
-        elif total < 200:
-            engagement_level = "moderate"
-        else:
-            engagement_level = "active"
+        length_category = "short" if avg_length < 20 else "medium" if avg_length < 50 else "long"
+        emoji_heavy = (emoji_count / total) > 0.3 if total else False
+        asks_questions = (question_count / total) > 0.2 if total else False
+        engagement_level = "casual" if total < 50 else "moderate" if total < 200 else "active"
         
         return {
             "length_category": length_category,
             "emoji_heavy": emoji_heavy,
             "asks_questions": asks_questions,
             "engagement_level": engagement_level,
-            "total_comments": total,
-            "avg_length": round(avg_length, 1),
         }
     
-    def _calculate_bonuses(self, person_a: Dict, person_b: Dict, scores: Dict, shared_interest_categories: Set[str]) -> Dict:
-        """Calculate bonus points based on special matches."""
+    def _calculate_bonuses(self, scores: Dict, shared_themes: List[Dict]) -> Dict:
+        """Calculate bonus points."""
         bonuses = self.config["bonuses"]
         details = []
         total = 0
         
-        # Bonus for niche account overlap in following
-        following_overlap = scores["following"].get("direct_overlap_count", 0)
+        # Bonus for following exact same accounts
+        following_overlap = scores["following"].get("overlap_count", 0)
         if following_overlap >= 3:
             niche_bonus = min(following_overlap - 2, 5) * bonuses["same_niche_account"]
             total += niche_bonus
@@ -320,100 +344,60 @@ class CompatibilityAnalyzer:
                 "points": niche_bonus,
             })
         
-        # Bonus for exact same saved posts
-        exact_saved = scores["saved"].get("exact_post_matches", 0)
-        if exact_saved > 0:
-            saved_bonus = min(exact_saved, 5) * bonuses["same_exact_saved_post"]
-            total += saved_bonus
-            details.append({
-                "type": "same_exact_saved_post",
-                "description": f"Saved {exact_saved} of the exact same posts",
-                "points": saved_bonus,
-            })
-        
-        # Bonus for shared interest categories
-        if len(shared_interest_categories) >= 2:
-            interest_bonus = min(len(shared_interest_categories), 5) * bonuses["same_interest_category"]
-            total += interest_bonus
+        # Bonus for shared theme categories
+        strong_themes = [t for t in shared_themes if t["quality"] == "Strong match"]
+        if len(strong_themes) >= 1:
+            theme_bonus = min(len(strong_themes), 5) * bonuses["same_interest_category"]
+            total += theme_bonus
             details.append({
                 "type": "same_interest_category",
-                "description": f"Share {len(shared_interest_categories)} interest categories",
-                "points": interest_bonus,
+                "description": f"{len(strong_themes)} strong theme matches",
+                "points": theme_bonus,
             })
         
-        return {
-            "total": total,
-            "details": details,
-        }
+        return {"total": total, "details": details}
     
-    def _collect_shared_interests(self, scores: Dict, shared_interest_categories: Set[str]) -> List[Dict]:
-        """
-        Collect shared interests focusing on THEMES not just account names.
-        Shows interest categories first, then some specific examples.
-        """
-        shared = []
+    def _format_shared_themes(self, shared_themes: List[Dict]) -> List[Dict]:
+        """Format shared themes for display."""
+        emoji_map = {
+            "Photography": "📷",
+            "Fitness & Gym": "💪",
+            "Sports": "⚽",
+            "Tech & Coding": "💻",
+            "Food & Cooking": "🍳",
+            "Travel & Adventure": "✈️",
+            "Islam & Religion": "🕌",
+            "Anime & Manga": "🎌",
+            "Memes & Comedy": "😂",
+            "Art & Design": "🎨",
+            "Music": "🎵",
+            "Gaming": "🎮",
+            "Fashion & Style": "👔",
+            "Cars & Motors": "🚗",
+            "Nature & Animals": "🌿",
+            "Self-Improvement": "📈",
+        }
         
-        # PRIMARY: Show shared interest categories (themes)
-        for category in sorted(shared_interest_categories):
-            emoji_map = {
-                "Photography": "📷",
-                "Fitness & Gym": "💪",
-                "Sports": "⚽",
-                "Tech & Coding": "💻",
-                "Food & Cooking": "🍳",
-                "Travel & Adventure": "✈️",
-                "Islam & Religion": "🕌",
-                "Anime & Manga": "🎌",
-                "Memes & Comedy": "😂",
-                "Art & Design": "🎨",
-                "Music": "🎵",
-                "Gaming": "🎮",
-                "Fashion & Style": "👔",
-                "Cars & Motors": "🚗",
-                "Nature & Animals": "🌿",
-                "Self-Improvement": "📈",
-            }
-            emoji = emoji_map.get(category, "🎯")
-            shared.append({
+        formatted = []
+        for theme_data in shared_themes:
+            theme = theme_data["theme"]
+            emoji = emoji_map.get(theme, "🎯")
+            quality = theme_data["quality"]
+            exact = theme_data["exact_matches"]
+            
+            if exact > 0:
+                desc = f"{emoji} {theme} — {quality} ({exact} exact)"
+            else:
+                desc = f"{emoji} {theme} — {quality}"
+            
+            formatted.append({
                 "type": "interest",
-                "value": category,
-                "description": f"{emoji} Both into {category}",
+                "value": theme,
+                "description": desc,
+                "quality": quality,
             })
         
-        # SECONDARY: Show some specific account overlaps as examples
-        following_overlap = scores["following"].get("direct_overlap_items", [])[:5]
-        if following_overlap:
-            shared.append({
-                "type": "accounts",
-                "value": "following",
-                "description": f"📱 Both follow {len(scores['following'].get('direct_overlap_items', []))} of the same accounts",
-            })
-        
-        likes_overlap = scores["likes"].get("overlap_items", [])[:5]
-        if likes_overlap:
-            shared.append({
-                "type": "accounts",
-                "value": "likes",
-                "description": f"❤️ Both like content from {len(scores['likes'].get('overlap_items', []))} of the same creators",
-            })
-        
-        saved_overlap = scores["saved"].get("overlap_items", [])[:5]
-        if saved_overlap:
-            shared.append({
-                "type": "accounts",
-                "value": "saved",
-                "description": f"📌 Both saved posts from {len(scores['saved'].get('overlap_items', []))} of the same accounts",
-            })
-        
-        # Comment style matches
-        for match in scores["comments"].get("style_matches", [])[:2]:
-            shared.append({
-                "type": "style",
-                "value": match,
-                "description": f"💬 {match}",
-            })
-        
-        return shared
+        return formatted
 
 
 # Convenience function
