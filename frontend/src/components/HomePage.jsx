@@ -180,7 +180,7 @@ export default function HomePage({ onCreateSession, onJoinSession }) {
             </div>
             <div>
               <p className="text-white">Download your Instagram data</p>
-              <p className="text-white/50 text-sm">Go to Instagram Settings → Download Your Information</p>
+              <p className="text-white/50 text-sm">Settings → Your Activity → Download Your Information → JSON format</p>
             </div>
           </div>
           
@@ -190,7 +190,7 @@ export default function HomePage({ onCreateSession, onJoinSession }) {
             </div>
             <div>
               <p className="text-white">Upload your data ZIP file</p>
-              <p className="text-white/50 text-sm">We only look at 5 specific things (see privacy info)</p>
+              <p className="text-white/50 text-sm">We only analyze likes, saved posts, and who you follow</p>
             </div>
           </div>
           
@@ -199,8 +199,8 @@ export default function HomePage({ onCreateSession, onJoinSession }) {
               <span className="text-orange-400 font-semibold">3</span>
             </div>
             <div>
-              <p className="text-white">See what you have in common!</p>
-              <p className="text-white/50 text-sm">Get your compatibility score and shared interests</p>
+              <p className="text-white">Discover your shared interests!</p>
+              <p className="text-white/50 text-sm">Get a relationship summary and ways to connect</p>
             </div>
           </div>
         </div>

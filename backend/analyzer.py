@@ -71,9 +71,15 @@ class CompatibilityAnalyzer:
         # Format shared themes with examples and ways to connect
         shared_interests = self._format_shared_themes_with_examples(shared_themes)
         
+        # Generate holistic relationship summary
+        relationship_summary = self._generate_relationship_summary(
+            final_score, shared_themes, scores
+        )
+        
         return {
             "score": final_score,
             "label": label,
+            "relationship_summary": relationship_summary,
             "breakdown": {
                 cat: {
                     "score": scores[cat]["score"],
@@ -273,8 +279,70 @@ class CompatibilityAnalyzer:
         
         return {"total": total, "details": details}
     
+    def _generate_relationship_summary(
+        self, 
+        score: int, 
+        shared_themes: List[Dict],
+        scores: Dict[str, Dict]
+    ) -> Dict[str, str]:
+        """Generate a holistic relationship summary."""
+        strong_themes = [t for t in shared_themes if t["quality"] == "Strong match"]
+        good_themes = [t for t in shared_themes if t["quality"] == "Good match"]
+        
+        # Get theme names
+        strong_names = [t["theme"] for t in strong_themes]
+        all_shared_names = [t["theme"] for t in shared_themes]
+        
+        # Build headline based on score
+        if score >= 85:
+            headline = "You two are a fantastic match! 🎉"
+            vibe = "highly compatible"
+        elif score >= 70:
+            headline = "You have a lot in common! 💚"
+            vibe = "quite compatible"
+        elif score >= 50:
+            headline = "You share some common ground 🤝"
+            vibe = "somewhat compatible"
+        elif score >= 30:
+            headline = "There's potential here 🌱"
+            vibe = "different but with some overlap"
+        else:
+            headline = "You have different vibes 🔍"
+            vibe = "quite different"
+        
+        # Build description
+        if strong_themes:
+            themes_text = " and ".join(strong_names[:2])
+            description = f"You both share a strong interest in {themes_text}, "
+            description += "which suggests you could bond quickly over shared passions. "
+        elif good_themes:
+            themes_text = " and ".join([t["theme"] for t in good_themes[:2]])
+            description = f"You both engage with {themes_text} content, "
+            description += "which gives you common ground to start from. "
+        elif shared_themes:
+            description = "While you don't follow the exact same accounts, "
+            description += "you do share similar interest areas. "
+        else:
+            description = "Your Instagram activity shows different interests, "
+            description += "but that doesn't mean you can't connect! "
+        
+        # Add relationship dynamic
+        if score >= 70:
+            dynamic = "You're likely to find common ground quickly and have plenty to talk about from day one."
+        elif score >= 50:
+            dynamic = "You may need to explore a bit to find your connection points, but they're there."
+        else:
+            dynamic = "You might bring different perspectives to the table, which can lead to interesting conversations."
+        
+        return {
+            "headline": headline,
+            "description": description,
+            "dynamic": dynamic,
+            "vibe": vibe,
+        }
+    
     def _format_shared_themes_with_examples(self, shared_themes: List[Dict]) -> List[Dict]:
-        """Format shared themes with sentence examples and ways to connect."""
+        """Format shared themes with sentence examples. Ways to connect only for Strong matches."""
         emoji_map = {
             "Photography": "📷",
             "Fitness & Gym": "💪",
@@ -303,11 +371,13 @@ class CompatibilityAnalyzer:
             
             # Create sentence-form examples for exact matches
             examples = []
-            for account in exact_matches[:3]:  # Show up to 3 examples
+            for account in exact_matches[:3]:
                 examples.append(self._create_example_sentence(theme, account))
             
-            # Get ways to connect
-            connect_ideas = self.ways_to_connect.get(theme, [])[:2]
+            # ONLY get ways to connect for Strong matches
+            connect_ideas = []
+            if quality == "Strong match":
+                connect_ideas = self.ways_to_connect.get(theme, [])[:2]
             
             formatted.append({
                 "type": "interest",

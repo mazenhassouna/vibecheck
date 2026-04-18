@@ -1,5 +1,5 @@
 export default function ResultsPage({ result, onStartOver }) {
-  const { score, label, breakdown, shared_interests, bonus_points } = result
+  const { score, label, breakdown, shared_interests, bonus_points, relationship_summary } = result
 
   // Calculate circle progress
   const circumference = 2 * Math.PI * 45
@@ -55,23 +55,31 @@ export default function ResultsPage({ result, onStartOver }) {
           </div>
         </div>
         
-        <div className="text-4xl mb-2">{label?.emoji}</div>
         <h2 className="text-2xl font-semibold text-white mb-2">
           {label?.text}
         </h2>
-        
-        {bonus_points > 0 && (
-          <div className="mt-4 inline-block bg-yellow-500/20 text-yellow-300 px-4 py-2 rounded-full text-sm">
-            ⭐ +{bonus_points} bonus points for special matches!
-          </div>
-        )}
       </div>
+
+      {/* Relationship Summary */}
+      {relationship_summary && (
+        <div className="card p-6 bg-gradient-to-br from-pink-500/10 to-purple-500/10 border border-white/10">
+          <h3 className="text-xl font-bold text-white mb-3">
+            {relationship_summary.headline}
+          </h3>
+          <p className="text-white/80 leading-relaxed mb-4">
+            {relationship_summary.description}
+          </p>
+          <p className="text-white/60 text-sm italic">
+            {relationship_summary.dynamic}
+          </p>
+        </div>
+      )}
 
       {/* Shared interests with examples */}
       {shared_interests && shared_interests.length > 0 && (
         <div className="card p-6">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            🎯 What You Have in Common
+          <h3 className="text-lg font-semibold text-white mb-4">
+            🎯 Shared Interests
           </h3>
           
           <div className="space-y-4">
@@ -98,7 +106,7 @@ export default function ResultsPage({ result, onStartOver }) {
                   )}
                 </div>
                 
-                {/* Examples */}
+                {/* Examples - only for matches with exact overlaps */}
                 {interest.examples && interest.examples.length > 0 && (
                   <div className="space-y-1 mb-3">
                     {interest.examples.map((example, i) => (
@@ -109,7 +117,7 @@ export default function ResultsPage({ result, onStartOver }) {
                   </div>
                 )}
                 
-                {/* Ways to connect */}
+                {/* Ways to connect - ONLY for Strong matches */}
                 {interest.ways_to_connect && interest.ways_to_connect.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-white/10">
                     <p className="text-xs text-white/50 mb-2">Ways to connect:</p>
@@ -117,7 +125,7 @@ export default function ResultsPage({ result, onStartOver }) {
                       {interest.ways_to_connect.map((idea, i) => (
                         <span 
                           key={i}
-                          className="text-xs bg-white/10 text-white/70 px-3 py-1 rounded-full"
+                          className="text-xs bg-green-500/20 text-green-300 px-3 py-1 rounded-full"
                         >
                           💡 {idea}
                         </span>
@@ -131,44 +139,31 @@ export default function ResultsPage({ result, onStartOver }) {
         </div>
       )}
 
-      {/* Score breakdown */}
-      <div className="card p-6">
-        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          📊 Score Breakdown
-        </h3>
+      {/* Score breakdown - collapsed/minimal */}
+      <details className="card p-4">
+        <summary className="text-white/70 text-sm cursor-pointer hover:text-white">
+          📊 View detailed score breakdown
+        </summary>
         
-        <p className="text-white/50 text-xs mb-4">
-          Your score blends exact matches (40%) with shared interest themes (60%)
-        </p>
-        
-        <div className="space-y-4">
+        <div className="mt-4 space-y-3">
           {Object.entries(breakdown).map(([category, data]) => (
             <div key={category}>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-white/70 capitalize">{category}</span>
-                <span className="text-white">
+                <span className="text-white/50 text-xs">
                   {data.score}% similarity
                 </span>
               </div>
-              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-1000"
+                  className="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"
                   style={{ width: `${data.score}%` }}
                 />
               </div>
             </div>
           ))}
-          
-          {bonus_points > 0 && (
-            <div className="pt-4 border-t border-white/10">
-              <div className="flex justify-between text-sm">
-                <span className="text-yellow-300">Bonus Points</span>
-                <span className="text-yellow-300">+{bonus_points}</span>
-              </div>
-            </div>
-          )}
         </div>
-      </div>
+      </details>
 
       {/* Action buttons */}
       <div className="flex gap-4">
@@ -183,7 +178,6 @@ export default function ResultsPage({ result, onStartOver }) {
       {/* Privacy reminder */}
       <div className="text-center text-white/40 text-sm">
         <p>🔒 Your data has been deleted from our servers.</p>
-        <p>Only the results above were generated.</p>
       </div>
     </div>
   )

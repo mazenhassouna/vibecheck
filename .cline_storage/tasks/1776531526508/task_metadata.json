@@ -122,7 +122,7 @@
     },
     {
       "path": "frontend/src/components/HomePage.jsx",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776535773390,
       "cline_edit_date": 1776535773390,
@@ -362,7 +362,7 @@
     },
     {
       "path": "backend/analyzer.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776552576465,
       "cline_edit_date": 1776552576465,
@@ -370,10 +370,50 @@
     },
     {
       "path": "frontend/src/components/ResultsPage.jsx",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776552611855,
       "cline_edit_date": 1776552611855,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776552892581,
+      "cline_edit_date": 1776552892581,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776552920787,
+      "cline_edit_date": 1776552920787,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/ResultsPage.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776552952870,
+      "cline_edit_date": 1776552952870,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/HomePage.jsx",
+      "record_state": "stale",
+      "record_source": "read_tool",
+      "cline_read_date": 1776552959588,
+      "cline_edit_date": 1776535773390,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/HomePage.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776552977083,
+      "cline_edit_date": 1776552977083,
       "user_edit_date": null
     }
   ],
@@ -446,6 +486,18 @@
     },
     {
       "ts": 1776552471230,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "act"
+    },
+    {
+      "ts": 1776552864996,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "plan"
+    },
+    {
+      "ts": 1776552881384,
       "model_id": "claude-opus-4-5-20251101",
       "model_provider_id": "anthropic",
       "mode": "act"
