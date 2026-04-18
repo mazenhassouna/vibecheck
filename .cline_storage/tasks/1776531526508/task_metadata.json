@@ -274,7 +274,7 @@
     },
     {
       "path": "backend/parser.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776551501503,
       "cline_edit_date": 1776551501503,
@@ -354,7 +354,7 @@
     },
     {
       "path": "backend/scoring_config.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776552515577,
       "cline_edit_date": 1776552515577,
@@ -386,7 +386,7 @@
     },
     {
       "path": "backend/analyzer.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776552920787,
       "cline_edit_date": 1776552920787,
@@ -414,6 +414,78 @@
       "record_source": "cline_edited",
       "cline_read_date": 1776552977083,
       "cline_edit_date": 1776552977083,
+      "user_edit_date": null
+    },
+    {
+      "path": "/home/mhassoun/Downloads/instagram-reshialkhan1-2026-04-18-jhb2u11Z/connections/followers_and_following/following.json",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776553226393,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/check_format.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776553304110,
+      "cline_edit_date": 1776553304110,
+      "user_edit_date": null
+    },
+    {
+      "path": "/home/mhassoun/Downloads/instagram-reshialkhan1-2026-04-18-jhb2u11Z/your_instagram_activity/saved/saved_posts.json",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776553329293,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/parser.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776553339885,
+      "cline_edit_date": 1776551501503,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "stale",
+      "record_source": "read_tool",
+      "cline_read_date": 1776553422012,
+      "cline_edit_date": 1776552515577,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776553583381,
+      "cline_edit_date": 1776553583381,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "active",
+      "record_source": "user_edited",
+      "cline_read_date": 1776553583381,
+      "cline_edit_date": 1776553583381,
+      "user_edit_date": 1776553583535
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776553613566,
+      "cline_edit_date": 1776553613566,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776553643275,
+      "cline_edit_date": 1776553643275,
       "user_edit_date": null
     }
   ],
@@ -498,6 +570,18 @@
     },
     {
       "ts": 1776552881384,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "act"
+    },
+    {
+      "ts": 1776553186680,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "plan"
+    },
+    {
+      "ts": 1776553284026,
       "model_id": "claude-opus-4-5-20251101",
       "model_provider_id": "anthropic",
       "mode": "act"

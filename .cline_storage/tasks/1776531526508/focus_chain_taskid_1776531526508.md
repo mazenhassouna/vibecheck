@@ -3,10 +3,10 @@
 <!-- Edit this markdown file to update your focus chain list -->
 <!-- Use the format: - [ ] for incomplete items and - [x] for completed items -->
 
-- [x] Update analyzer.py - only add ways_to_connect for Strong matches
-- [x] Add holistic relationship summary generation
-- [x] Update ResultsPage.jsx - only show suggestions for Strong
-- [x] Add relationship review section to results
-- [x] Review and update HomePage for consistency
+- [x] Read current scoring_config.py
+- [x] Add many more interest categories and keywords (40+ categories)
+- [x] Add corresponding ways to connect for each category
+- [x] Update analyzer with emojis for new categories
+- [x] Update example sentence templates for new categories
 
 <!-- Save this file and the focus chain list will be updated in the task -->

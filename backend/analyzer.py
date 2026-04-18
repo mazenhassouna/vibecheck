@@ -344,22 +344,88 @@ class CompatibilityAnalyzer:
     def _format_shared_themes_with_examples(self, shared_themes: List[Dict]) -> List[Dict]:
         """Format shared themes with sentence examples. Ways to connect only for Strong matches."""
         emoji_map = {
-            "Photography": "📷",
+            # Fitness & Health
             "Fitness & Gym": "💪",
-            "Sports": "⚽",
-            "Tech & Coding": "💻",
-            "Food & Cooking": "🍳",
-            "Travel & Adventure": "✈️",
-            "Islam & Religion": "🕌",
+            "Calisthenics": "🤸",
+            "Running & Cardio": "🏃",
+            "Yoga & Wellness": "🧘",
+            "Nutrition & Diet": "🥗",
+            
+            # Sports
+            "MMA & Combat Sports": "🥊",
+            "Soccer/Football": "⚽",
+            "Basketball": "🏀",
+            "Cricket": "🏏",
+            "American Football": "🏈",
+            "Tennis": "🎾",
+            "F1 & Motorsport": "🏎️",
+            "Golf": "⛳",
+            "Extreme Sports": "🛹",
+            
+            # Religion & Spirituality
+            "Islam & Muslim Life": "🕌",
+            "Christianity": "✝️",
+            "Hinduism": "🙏",
+            "Spirituality": "☯️",
+            
+            # Entertainment
             "Anime & Manga": "🎌",
+            "Movies & Cinema": "🎬",
+            "TV Shows & Series": "📺",
+            "K-Pop & K-Drama": "🇰🇷",
             "Memes & Comedy": "😂",
-            "Art & Design": "🎨",
-            "Music": "🎵",
+            
+            # Creative
+            "Photography": "📷",
+            "Art & Illustration": "🎨",
+            "Graphic Design": "✏️",
+            "Music Production": "🎵",
+            "Content Creation": "📱",
+            "Videography & Film": "🎥",
+            
+            # Tech & Gaming
+            "Tech & Coding": "💻",
             "Gaming": "🎮",
+            "PC Building": "🖥️",
+            "Tech Reviews": "📲",
+            
+            # Lifestyle
             "Fashion & Style": "👔",
-            "Cars & Motors": "🚗",
-            "Nature & Animals": "🌿",
+            "Fragrance & Grooming": "🧴",
+            "Watches & Accessories": "⌚",
+            "Food & Cooking": "🍳",
+            "Coffee & Tea": "☕",
+            
+            # Travel & Outdoors
+            "Travel & Adventure": "✈️",
+            "Nature & Wildlife": "🌿",
+            "Camping & Survival": "⛺",
+            "Pets & Animals": "🐾",
+            
+            # Business & Learning
             "Self-Improvement": "📈",
+            "Finance & Investing": "💰",
+            "Business & Startups": "💼",
+            "Education & Learning": "📚",
+            
+            # Automotive
+            "Cars & Supercars": "🚗",
+            "JDM & Tuning": "🏁",
+            "Motorcycles": "🏍️",
+            
+            # Culture
+            "Middle Eastern Culture": "🌙",
+            "South Asian Culture": "🪔",
+            "African Culture": "🌍",
+            "Latino Culture": "💃",
+            
+            # Humor & Internet
+            "Internet Culture": "🌐",
+            "Dark Humor": "🃏",
+            
+            # Mental Health
+            "Mental Health": "💚",
+            "Positivity & Quotes": "✨",
         }
         
         formatted = []
@@ -398,22 +464,88 @@ class CompatibilityAnalyzer:
         
         # Theme-specific sentence templates
         templates = {
-            "Photography": f"You both enjoy {display_name}'s photography",
+            # Fitness & Health
             "Fitness & Gym": f"You both follow {display_name} for fitness content",
-            "Sports": f"You both follow {display_name} for sports content",
-            "Tech & Coding": f"You both follow {display_name} for tech content",
-            "Food & Cooking": f"You both follow {display_name} for food content",
-            "Travel & Adventure": f"You both follow {display_name} for travel inspiration",
-            "Islam & Religion": f"You both follow {display_name} for Islamic content",
+            "Calisthenics": f"You both follow {display_name} for calisthenics",
+            "Running & Cardio": f"You both follow {display_name} for running content",
+            "Yoga & Wellness": f"You both follow {display_name} for wellness",
+            "Nutrition & Diet": f"You both follow {display_name} for nutrition tips",
+            
+            # Sports
+            "MMA & Combat Sports": f"You both follow {display_name} for MMA/combat sports",
+            "Soccer/Football": f"You both follow {display_name} for football content",
+            "Basketball": f"You both follow {display_name} for basketball",
+            "Cricket": f"You both follow {display_name} for cricket content",
+            "American Football": f"You both follow {display_name} for NFL content",
+            "Tennis": f"You both follow {display_name} for tennis",
+            "F1 & Motorsport": f"You both follow {display_name} for F1 content",
+            "Golf": f"You both follow {display_name} for golf",
+            "Extreme Sports": f"You both follow {display_name} for extreme sports",
+            
+            # Religion
+            "Islam & Muslim Life": f"You both follow {display_name} for Islamic content",
+            "Christianity": f"You both follow {display_name} for Christian content",
+            "Hinduism": f"You both follow {display_name} for Hindu content",
+            "Spirituality": f"You both follow {display_name} for spiritual content",
+            
+            # Entertainment
             "Anime & Manga": f"You both enjoy {display_name}'s anime content",
+            "Movies & Cinema": f"You both follow {display_name} for film content",
+            "TV Shows & Series": f"You both follow {display_name} for TV content",
+            "K-Pop & K-Drama": f"You both follow {display_name} for K-content",
             "Memes & Comedy": f"You both find {display_name} funny",
-            "Art & Design": f"You both appreciate {display_name}'s art",
-            "Music": f"You both enjoy {display_name}'s music",
+            
+            # Creative
+            "Photography": f"You both enjoy {display_name}'s photography",
+            "Art & Illustration": f"You both appreciate {display_name}'s art",
+            "Graphic Design": f"You both follow {display_name} for design",
+            "Music Production": f"You both follow {display_name} for music",
+            "Content Creation": f"You both follow {display_name}'s content",
+            "Videography & Film": f"You both follow {display_name} for videos",
+            
+            # Tech & Gaming
+            "Tech & Coding": f"You both follow {display_name} for tech content",
             "Gaming": f"You both follow {display_name} for gaming",
-            "Fashion & Style": f"You both follow {display_name} for style inspiration",
-            "Cars & Motors": f"You both follow {display_name} for car content",
-            "Nature & Animals": f"You both enjoy {display_name}'s nature content",
+            "PC Building": f"You both follow {display_name} for PC builds",
+            "Tech Reviews": f"You both follow {display_name} for tech reviews",
+            
+            # Lifestyle
+            "Fashion & Style": f"You both follow {display_name} for style",
+            "Fragrance & Grooming": f"You both follow {display_name} for fragrances",
+            "Watches & Accessories": f"You both follow {display_name} for watches",
+            "Food & Cooking": f"You both follow {display_name} for food content",
+            "Coffee & Tea": f"You both follow {display_name} for coffee content",
+            
+            # Travel & Outdoors
+            "Travel & Adventure": f"You both follow {display_name} for travel",
+            "Nature & Wildlife": f"You both enjoy {display_name}'s nature content",
+            "Camping & Survival": f"You both follow {display_name} for outdoor content",
+            "Pets & Animals": f"You both follow {display_name} for pet content",
+            
+            # Business & Learning
             "Self-Improvement": f"You both follow {display_name} for motivation",
+            "Finance & Investing": f"You both follow {display_name} for finance tips",
+            "Business & Startups": f"You both follow {display_name} for business",
+            "Education & Learning": f"You both follow {display_name} for learning",
+            
+            # Automotive
+            "Cars & Supercars": f"You both follow {display_name} for car content",
+            "JDM & Tuning": f"You both follow {display_name} for JDM content",
+            "Motorcycles": f"You both follow {display_name} for bikes",
+            
+            # Culture
+            "Middle Eastern Culture": f"You both follow {display_name}",
+            "South Asian Culture": f"You both follow {display_name}",
+            "African Culture": f"You both follow {display_name}",
+            "Latino Culture": f"You both follow {display_name}",
+            
+            # Humor & Internet
+            "Internet Culture": f"You both follow {display_name}",
+            "Dark Humor": f"You both follow {display_name}",
+            
+            # Mental Health
+            "Mental Health": f"You both follow {display_name} for wellness",
+            "Positivity & Quotes": f"You both follow {display_name} for positivity",
         }
         
         return templates.get(theme, f"You both follow @{account}")
