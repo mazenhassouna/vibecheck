@@ -1,5 +1,5 @@
 export default function ResultsPage({ result, onStartOver }) {
-  const { score, label, breakdown, shared_interests, conversation_starters, bonus_points, summary } = result
+  const { score, label, breakdown, shared_interests, bonus_points } = result
 
   // Calculate circle progress
   const circumference = 2 * Math.PI * 45 // radius = 45
@@ -64,12 +64,6 @@ export default function ResultsPage({ result, onStartOver }) {
           {label?.text}
         </h2>
         
-        {summary && (
-          <p className="text-white/70 max-w-md mx-auto">
-            {summary}
-          </p>
-        )}
-        
         {bonus_points > 0 && (
           <div className="mt-4 inline-block bg-yellow-500/20 text-yellow-300 px-4 py-2 rounded-full text-sm">
             ⭐ +{bonus_points} bonus points for special matches!
@@ -88,15 +82,12 @@ export default function ResultsPage({ result, onStartOver }) {
             {shared_interests.slice(0, 15).map((interest, index) => (
               <div 
                 key={index}
-                className="flex items-center gap-3 p-3 bg-white/5 rounded-lg"
+                className={`flex items-center gap-3 p-3 rounded-lg ${
+                  interest.type === 'interest' 
+                    ? 'bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-white/10' 
+                    : 'bg-white/5'
+                }`}
               >
-                <span className="text-xl">
-                  {interest.type === 'following' && '👤'}
-                  {interest.type === 'topic' && '🏷️'}
-                  {interest.type === 'likes' && '❤️'}
-                  {interest.type === 'saved' && '📌'}
-                  {interest.type === 'style' && '💬'}
-                </span>
                 <span className="text-white">{interest.description}</span>
               </div>
             ))}
@@ -107,26 +98,6 @@ export default function ResultsPage({ result, onStartOver }) {
               + {shared_interests.length - 15} more shared interests
             </p>
           )}
-        </div>
-      )}
-
-      {/* Conversation starters */}
-      {conversation_starters && conversation_starters.length > 0 && (
-        <div className="card p-6">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            💬 Conversation Starters
-          </h3>
-          
-          <div className="space-y-3">
-            {conversation_starters.map((starter, index) => (
-              <div 
-                key={index}
-                className="p-4 bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-lg border border-white/10"
-              >
-                <p className="text-white italic">"{starter}"</p>
-              </div>
-            ))}
-          </div>
         </div>
       )}
 
@@ -172,12 +143,15 @@ export default function ResultsPage({ result, onStartOver }) {
         </h3>
         
         <div className="space-y-3 text-sm text-white/60">
-          <p><strong className="text-white">Likes:</strong> Accounts whose content you both enjoy</p>
-          <p><strong className="text-white">Saved:</strong> Posts you've both saved for later</p>
-          <p><strong className="text-white">Following:</strong> Accounts you both follow</p>
-          <p><strong className="text-white">Topics:</strong> Interest categories Instagram assigned you both</p>
-          <p><strong className="text-white">Comments:</strong> How similarly you engage (length, emoji use, etc.)</p>
+          <p><strong className="text-white">Likes (30%):</strong> Accounts whose content you both like</p>
+          <p><strong className="text-white">Saved (30%):</strong> Posts you've both saved for later</p>
+          <p><strong className="text-white">Following (30%):</strong> Accounts you both follow</p>
+          <p><strong className="text-white">Comments (10%):</strong> How similarly you engage (length, emoji use, etc.)</p>
         </div>
+        
+        <p className="text-xs text-white/40 mt-4">
+          Interests are derived from the accounts you both engage with.
+        </p>
       </div>
 
       {/* Action buttons */}

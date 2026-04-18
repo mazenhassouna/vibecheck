@@ -146,7 +146,7 @@
     },
     {
       "path": "frontend/src/components/ResultsPage.jsx",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776535917550,
       "cline_edit_date": 1776535917550,
@@ -218,7 +218,7 @@
     },
     {
       "path": "backend/analyzer.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "read_tool",
       "cline_read_date": 1776550645638,
       "cline_edit_date": 1776548532975,
@@ -226,7 +226,7 @@
     },
     {
       "path": "backend/scoring_config.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776550787492,
       "cline_edit_date": 1776550787492,
@@ -250,10 +250,82 @@
     },
     {
       "path": "backend/parser.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776550862483,
       "cline_edit_date": 1776550862483,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776551433580,
+      "cline_edit_date": 1776551433580,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776551486327,
+      "cline_edit_date": 1776551486327,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/parser.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776551501503,
+      "cline_edit_date": 1776551501503,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776551563539,
+      "cline_edit_date": 1776551563539,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/ResultsPage.jsx",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776551582157,
+      "cline_edit_date": 1776551582157,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/ResultsPage.jsx",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776551595650,
+      "cline_edit_date": 1776551595650,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/ResultsPage.jsx",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776551618549,
+      "cline_edit_date": 1776551618549,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/ResultsPage.jsx",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776551644761,
+      "cline_edit_date": 1776551644761,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/ResultsPage.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776551681526,
+      "cline_edit_date": 1776551681526,
       "user_edit_date": null
     }
   ],
@@ -290,6 +362,18 @@
     },
     {
       "ts": 1776550730532,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "act"
+    },
+    {
+      "ts": 1776551365845,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "plan"
+    },
+    {
+      "ts": 1776551412120,
       "model_id": "claude-opus-4-5-20251101",
       "model_provider_id": "anthropic",
       "mode": "act"

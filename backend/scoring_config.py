@@ -8,21 +8,13 @@ Weights must sum to 1.0 for accurate percentage-based scoring.
 SCORING_CONFIG = {
     # ===========================================
     # CATEGORY WEIGHTS (must sum to 1.0)
+    # Topics removed - focusing on actual engagement data
     # ===========================================
     "weights": {
-        "likes": 0.25,       # Content they actively like
-        "saved": 0.25,       # Content they intentionally save
-        "following": 0.25,   # Accounts they follow
-        "topics": 0.15,      # Instagram's inferred interests
+        "likes": 0.30,       # Content they actively like
+        "saved": 0.30,       # Content they intentionally save
+        "following": 0.30,   # Accounts they follow
         "comments": 0.10,    # Engagement style similarity
-    },
-    
-    # ===========================================
-    # FOLLOWING SUB-WEIGHTS
-    # ===========================================
-    "following_weights": {
-        "direct_overlap": 0.4,      # Same exact accounts
-        "category_similarity": 0.6,  # Similar account types
     },
     
     # ===========================================
@@ -31,8 +23,7 @@ SCORING_CONFIG = {
     "bonuses": {
         "same_niche_account": 3,      # Per shared niche/small account
         "same_exact_saved_post": 2,   # Per exact same saved post
-        "mutual_follow": 5,           # If they follow each other
-        "same_top_topics": 5,         # If top 3 topics match
+        "same_interest_category": 2,  # Per shared interest category
     },
     
     # Maximum bonus points allowed (prevents over-inflation)
@@ -83,13 +74,31 @@ ALLOWED_FILES = [
     "connections/followers_and_following/following.json",
     "followers_and_following/following.json",
     "following.json",
-    
-    # Topics - actual paths
-    "preferences/your_topics/recommended_topics.json",
-    "your_topics/recommended_topics.json",
-    "your_topics/your_topics.json",
-    "recommended_topics.json",
 ]
+
+
+# ===========================================
+# INTEREST CATEGORIES
+# Keywords to categorize accounts into interest themes
+# ===========================================
+INTEREST_CATEGORIES = {
+    "Photography": ["photo", "camera", "lens", "capture", "visuals", "portrait", "landscape", "natgeo", "chrisburkard"],
+    "Fitness & Gym": ["gym", "lift", "fitness", "bodybuilding", "workout", "gains", "muscle", "cbum", "noeldeyzel", "moreplatesmoredates"],
+    "Sports": ["boxing", "cricket", "basketball", "football", "soccer", "mma", "ufc", "makhachev", "sports"],
+    "Tech & Coding": ["dev", "code", "tech", "programming", "software", "engineer", "hacker", "cyber"],
+    "Food & Cooking": ["cook", "chef", "food", "recipe", "kitchen", "bake", "eat", "foodie"],
+    "Travel & Adventure": ["travel", "wander", "explore", "adventure", "hiking", "backpack", "nomad", "wanderlust"],
+    "Islam & Religion": ["islamic", "mufti", "mosque", "imam", "muslim", "quran", "deen", "halal", "bukhari", "menkofficial"],
+    "Anime & Manga": ["anime", "manga", "otaku", "weeb", "japan", "cosplay"],
+    "Memes & Comedy": ["meme", "funny", "comedy", "humor", "lol", "shitpost", "dank"],
+    "Art & Design": ["art", "design", "draw", "paint", "creative", "illustration", "artist"],
+    "Music": ["music", "song", "dj", "producer", "beats", "spotify", "playlist"],
+    "Gaming": ["game", "gaming", "esport", "twitch", "stream", "gamer", "playstation", "xbox"],
+    "Fashion & Style": ["fashion", "style", "outfit", "clothing", "drip", "sneaker", "streetwear"],
+    "Cars & Motors": ["car", "auto", "motor", "drift", "racing", "bike", "wheelie"],
+    "Nature & Animals": ["nature", "animal", "wildlife", "dog", "cat", "pet", "outdoor"],
+    "Self-Improvement": ["motivation", "mindset", "success", "grind", "hustle", "entrepreneur", "growth"],
+}
 
 
 def get_score_label(score: int) -> dict:

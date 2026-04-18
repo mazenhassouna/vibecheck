@@ -59,8 +59,7 @@ class InstagramDataParser:
             return "comments"
         elif "following" in filepath_lower:
             return "following"
-        elif "topic" in filepath_lower:
-            return "topics"
+        # Topics removed - focusing on actual engagement data
         return None
     
     def parse_zip(self, zip_content: bytes) -> Dict[str, Any]:
