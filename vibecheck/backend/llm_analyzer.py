@@ -12,6 +12,43 @@ if config.GEMINI_API_KEY:
     genai.configure(api_key=config.GEMINI_API_KEY)
 
 
+def extract_json_from_response(text: str) -> dict[str, Any]:
+    """Extract JSON from LLM response, handling markdown code blocks."""
+    # Try direct JSON parse first
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    
+    # Try to extract from markdown code blocks
+    import re
+    
+    # Pattern for ```json ... ``` or ``` ... ```
+    patterns = [
+        r'```json\s*([\s\S]*?)\s*```',
+        r'```\s*([\s\S]*?)\s*```',
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, text)
+        if match:
+            try:
+                return json.loads(match.group(1))
+            except json.JSONDecodeError:
+                continue
+    
+    # Try to find JSON object in the text
+    start = text.find('{')
+    end = text.rfind('}')
+    if start != -1 and end != -1 and end > start:
+        try:
+            return json.loads(text[start:end + 1])
+        except json.JSONDecodeError:
+            pass
+    
+    raise json.JSONDecodeError("Could not extract JSON from response", text, 0)
+
+
 # Vibe score tiers
 VIBE_TIERS = {
     (90, 100): {"label": "🔥 Soulmates", "description": "Practically the same person"},
@@ -42,7 +79,6 @@ class InterestAnalyzer:
             config.LLM_MODEL,
             generation_config=genai.GenerationConfig(
                 temperature=config.LLM_TEMPERATURE,
-                response_mime_type="application/json",
             )
         )
     
@@ -125,7 +161,7 @@ Be thorough but focus on the strongest signals. Limit to top 20 interests."""
         )
         
         try:
-            result = json.loads(response.text)
+            result = extract_json_from_response(response.text)
             result["user_label"] = user_label
             return result
         except json.JSONDecodeError:
@@ -221,7 +257,7 @@ Be accurate and specific. The narrative should feel personal and insightful."""
         )
         
         try:
-            result = json.loads(response.text)
+            result = extract_json_from_response(response.text)
             # Add tier information
             score = result.get("vibe_score", 0)
             tier = get_vibe_tier(score)
