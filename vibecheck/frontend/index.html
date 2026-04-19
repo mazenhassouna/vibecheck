@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibecheck - Find Your Common Ground</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ Vibecheck</h1>
+            <p class="subtitle">Discover what you have in common based on your Instagram data</p>
+        </header>
+
+        <main>
+            <!-- Upload Section -->
+            <section id="upload-section" class="card">
+                <h2>📤 Upload Your Data</h2>
+                <p class="instructions">
+                    Each person needs to download their Instagram data from Meta 
+                    (<a href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank">Download here</a>)
+                    and select JSON format.
+                </p>
+
+                <div class="upload-grid">
+                    <div class="upload-box" id="user-a-box">
+                        <h3>👤 Person A</h3>
+                        <div class="dropzone" id="dropzone-a">
+                            <input type="file" id="files-a" multiple accept=".json" />
+                            <label for="files-a">
+                                <span class="icon">📁</span>
+                                <span>Drop JSON files here or click to browse</span>
+                            </label>
+                        </div>
+                        <div class="file-list" id="file-list-a"></div>
+                        <div class="status" id="status-a"></div>
+                    </div>
+
+                    <div class="upload-box" id="user-b-box">
+                        <h3>👤 Person B</h3>
+                        <div class="dropzone" id="dropzone-b">
+                            <input type="file" id="files-b" multiple accept=".json" />
+                            <label for="files-b">
+                                <span class="icon">📁</span>
+                                <span>Drop JSON files here or click to browse</span>
+                            </label>
+                        </div>
+                        <div class="file-list" id="file-list-b"></div>
+                        <div class="status" id="status-b"></div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="skip-scraping" />
+                        <span>Quick mode (skip Instagram profile enrichment)</span>
+                    </label>
+                </div>
+
+                <button id="analyze-btn" class="primary-btn" disabled>
+                    🔍 Analyze Compatibility
+                </button>
+            </section>
+
+            <!-- Loading Section -->
+            <section id="loading-section" class="card hidden">
+                <div class="loader">
+                    <div class="spinner"></div>
+                    <h2>Analyzing your vibes...</h2>
+                    <p id="loading-status">Parsing Instagram data...</p>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results-section" class="card hidden">
+                <div class="score-display">
+                    <div class="score-circle" id="score-circle">
+                        <span class="score-number" id="score-number">0</span>
+                    </div>
+                    <h2 id="tier-label">Calculating...</h2>
+                    <p id="tier-description"></p>
+                </div>
+
+                <div class="narrative-box">
+                    <h3>💬 The Vibe</h3>
+                    <p id="narrative"></p>
+                </div>
+
+                <div class="matches-grid">
+                    <div class="matches-column">
+                        <h3>🎯 Exact Matches</h3>
+                        <p class="column-desc">Same artists, shows, teams, or creators you both love</p>
+                        <ul id="exact-matches" class="match-list"></ul>
+                    </div>
+
+                    <div class="matches-column">
+                        <h3>🤝 Category Matches</h3>
+                        <p class="column-desc">Same interests, different specifics</p>
+                        <ul id="category-matches" class="match-list"></ul>
+                    </div>
+
+                    <div class="matches-column">
+                        <h3>🌐 Broad Overlaps</h3>
+                        <p class="column-desc">General areas of shared interest</p>
+                        <ul id="broad-overlaps" class="match-list"></ul>
+                    </div>
+                </div>
+
+                <div class="unique-grid">
+                    <div class="unique-column">
+                        <h3>🅰️ Unique to Person A</h3>
+                        <p class="column-desc">Things A can introduce to B</p>
+                        <ul id="unique-a" class="tag-list"></ul>
+                    </div>
+
+                    <div class="unique-column">
+                        <h3>🅱️ Unique to Person B</h3>
+                        <p class="column-desc">Things B can introduce to A</p>
+                        <ul id="unique-b" class="tag-list"></ul>
+                    </div>
+                </div>
+
+                <div class="summaries">
+                    <div class="summary-box">
+                        <h4>Person A's Vibe</h4>
+                        <p id="summary-a"></p>
+                    </div>
+                    <div class="summary-box">
+                        <h4>Person B's Vibe</h4>
+                        <p id="summary-b"></p>
+                    </div>
+                </div>
+
+                <button id="reset-btn" class="secondary-btn">
+                    🔄 Start Over
+                </button>
+            </section>
+
+            <!-- Error Section -->
+            <section id="error-section" class="card hidden">
+                <div class="error-display">
+                    <span class="error-icon">⚠️</span>
+                    <h2>Something went wrong</h2>
+                    <p id="error-message"></p>
+                    <button id="retry-btn" class="secondary-btn">Try Again</button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Made with ❤️ for finding connections</p>
+            <p class="privacy-note">🔒 Your data is processed locally and never stored</p>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
