@@ -562,7 +562,7 @@
     },
     {
       "path": "backend/apify_client.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776572462399,
       "cline_edit_date": 1776572462399,
@@ -574,6 +574,14 @@
       "record_source": "read_tool",
       "cline_read_date": 1776572602191,
       "cline_edit_date": 1776535533594,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/apify_client.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776572946121,
+      "cline_edit_date": 1776572946121,
       "user_edit_date": null
     }
   ],

@@ -22,7 +22,7 @@ except ImportError:
 
 
 # Configuration
-APIFY_TOKEN = os.environ.get("APIFY_TOKEN", "apify_api_IcAwOvkf2zk66h4lVuo4hEcAF23L8F1DdTOg")
+APIFY_TOKEN = os.environ.get("APIFY_TOKEN")
 
 # Official Apify scrapers
 REEL_SCRAPER_ACTOR = "apify/instagram-reel-scraper"
@@ -42,6 +42,9 @@ class InstagramScraper:
             raise ImportError("apify-client is required. Install with: pip install apify-client")
         
         self.token = api_token or APIFY_TOKEN
+        if not self.token:
+            raise ValueError("APIFY_TOKEN environment variable not set")
+        
         self.client = ApifyClient(self.token)
         self.cache_dir = CACHE_DIR
         self.cache_dir.mkdir(parents=True, exist_ok=True)
