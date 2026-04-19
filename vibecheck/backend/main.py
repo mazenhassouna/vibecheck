@@ -271,6 +271,12 @@ async def analyze_users(
         logger.info(f"Tier: {comparison.get('tier', 'N/A')}")
         logger.info("="*50)
         
+        # Get usernames (extracted from ZIP filenames, fallback to "Person A/B")
+        user_a_username = parsed_a.username if parsed_a.username else "Person A"
+        user_b_username = parsed_b.username if parsed_b.username else "Person B"
+        
+        logger.info(f"Usernames: {user_a_username} vs {user_b_username}")
+        
         return {
             "success": True,
             "vibe_score": comparison.get("vibe_score", 0),
@@ -282,6 +288,8 @@ async def analyze_users(
             "unique_to_a": comparison.get("unique_to_a", []),
             "unique_to_b": comparison.get("unique_to_b", []),
             "narrative": comparison.get("narrative", ""),
+            "user_a_username": user_a_username,
+            "user_b_username": user_b_username,
             "user_a_summary": result["user_a_profile"].get("summary", ""),
             "user_b_summary": result["user_b_profile"].get("summary", ""),
             "user_a_interests": result["user_a_profile"].get("interests", [])[:10],

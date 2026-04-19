@@ -200,6 +200,10 @@ function updateLoadingStatus(message) {
 }
 
 function displayResults(data) {
+    // Get usernames (from API response or fallback)
+    const userA = data.user_a_username || 'Person A';
+    const userB = data.user_b_username || 'Person B';
+    
     // Score
     const score = data.vibe_score || 0;
     elements.scoreNumber.textContent = score;
@@ -221,6 +225,17 @@ function displayResults(data) {
     
     // Broad overlaps
     renderMatchList(elements.broadOverlaps, data.broad_overlaps || [], 'broad');
+    
+    // Update titles with usernames
+    const uniqueATitle = document.getElementById('unique-a-title');
+    const uniqueBTitle = document.getElementById('unique-b-title');
+    const summaryATitle = document.getElementById('summary-a-title');
+    const summaryBTitle = document.getElementById('summary-b-title');
+    
+    if (uniqueATitle) uniqueATitle.textContent = `🅰️ Unique to @${userA}`;
+    if (uniqueBTitle) uniqueBTitle.textContent = `🅱️ Unique to @${userB}`;
+    if (summaryATitle) summaryATitle.textContent = `@${userA}'s Vibe`;
+    if (summaryBTitle) summaryBTitle.textContent = `@${userB}'s Vibe`;
     
     // Unique interests
     renderTagList(elements.uniqueA, data.unique_to_a || []);
