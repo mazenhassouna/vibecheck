@@ -167,10 +167,13 @@ async def parse_user_files(files: list[UploadFile]) -> ParsedInstagramData:
         
         try:
             if filename.lower().endswith('.zip'):
-                # Parse ZIP file
+                # Parse ZIP file (pass filename to extract username)
                 logger.info(f"Detected ZIP file: {filename}")
-                zip_data = parse_zip_file(content)
+                zip_data = parse_zip_file(content, filename)
                 logger.info(f"ZIP parsed: {zip_data.summary()}")
+                # Preserve username if extracted
+                if zip_data.username and not parser.data.username:
+                    parser.data.username = zip_data.username
                 parser.merge_data(zip_data)
             elif filename.lower().endswith('.json'):
                 # Parse JSON file

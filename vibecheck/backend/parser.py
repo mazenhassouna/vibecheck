@@ -1,6 +1,7 @@
 """Instagram JSON data parser for Meta's data export format."""
 
 import json
+import re
 import zipfile
 import io
 import logging
@@ -15,6 +16,9 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ParsedInstagramData:
     """Structured representation of parsed Instagram data."""
+    
+    # Instagram username (extracted from filename)
+    username: str = ""
     
     # Accounts the user follows
     following: list[str] = field(default_factory=list)
@@ -31,9 +35,10 @@ class ParsedInstagramData:
     # Raw data for additional context
     raw_data: dict[str, Any] = field(default_factory=dict)
     
-    def summary(self) -> dict[str, int]:
+    def summary(self) -> dict[str, Any]:
         """Return a summary of parsed data counts."""
         return {
+            "username": self.username,
             "following_count": len(self.following),
             "liked_posts_count": len(self.liked_posts),
             "saved_posts_count": len(self.saved_posts),
@@ -293,12 +298,58 @@ RELEVANT_FOLDER_PATTERNS = [
 ]
 
 
-def parse_zip_file(zip_bytes: bytes) -> ParsedInstagramData:
+def extract_username_from_filename(filename: str) -> str:
+    """
+    Extract Instagram username from the export ZIP filename.
+    
+    Instagram exports are typically named like:
+    - instagram-username-2024-01-15.zip
+    - instagram-username-part-1.zip
+    - username_instagram_data.zip
+    
+    Args:
+        filename: The name of the ZIP file
+        
+    Returns:
+        Extracted username or empty string if not found
+    """
+    if not filename:
+        return ""
+    
+    # Remove path if present
+    filename = Path(filename).stem  # Remove .zip extension
+    
+    # Pattern 1: instagram-username-date (most common)
+    match = re.match(r'^instagram-([a-zA-Z0-9._]+)-\d{4}', filename, re.IGNORECASE)
+    if match:
+        return match.group(1)
+    
+    # Pattern 2: instagram-username-part
+    match = re.match(r'^instagram-([a-zA-Z0-9._]+)-part', filename, re.IGNORECASE)
+    if match:
+        return match.group(1)
+    
+    # Pattern 3: instagram-username (simple)
+    match = re.match(r'^instagram-([a-zA-Z0-9._]+)$', filename, re.IGNORECASE)
+    if match:
+        return match.group(1)
+    
+    # Pattern 4: username_instagram_data
+    match = re.match(r'^([a-zA-Z0-9._]+)_instagram', filename, re.IGNORECASE)
+    if match:
+        return match.group(1)
+    
+    logger.debug(f"Could not extract username from filename: {filename}")
+    return ""
+
+
+def parse_zip_file(zip_bytes: bytes, filename: str = "") -> ParsedInstagramData:
     """
     Parse an Instagram data export ZIP file.
     
     Args:
         zip_bytes: Raw bytes of the ZIP file
+        filename: Original filename of the ZIP (used to extract username)
         
     Returns:
         ParsedInstagramData with all extracted data
@@ -306,6 +357,13 @@ def parse_zip_file(zip_bytes: bytes) -> ParsedInstagramData:
     logger.info(f"Parsing ZIP file ({len(zip_bytes)} bytes)")
     parser = InstagramParser()
     files_processed = 0
+    
+    # Try to extract username from filename
+    if filename:
+        username = extract_username_from_filename(filename)
+        if username:
+            parser.data.username = username
+            logger.info(f"Extracted username from filename: {username}")
     
     with zipfile.ZipFile(io.BytesIO(zip_bytes), 'r') as zf:
         # Get list of all files in the ZIP
