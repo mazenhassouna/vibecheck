@@ -24,6 +24,7 @@ from config import config
 from parser import InstagramParser, ParsedInstagramData, parse_zip_file
 from instagram_scraper import enrich_user_data, extract_profile_info, extract_reel_info
 from llm_analyzer import analyze_and_compare
+from sessions import session_manager, MAX_FILE_SIZE
 
 # Create FastAPI app
 app = FastAPI(
@@ -318,6 +319,208 @@ async def analyze_users_json(request: AnalysisRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============== Session-based Pairing System ==============
+
+@app.on_event("startup")
+async def startup_event():
+    """Start background tasks on startup."""
+    await session_manager.start_cleanup_task()
+    logger.info("Vibecheck server started")
+
+
+@app.post("/api/session/create")
+async def create_session():
+    """
+    Create a new session and get a code to share.
+    
+    Returns:
+        code: The session code to share with your partner
+        role: Your role (always "user_a" for the creator)
+    """
+    session = session_manager.create_session()
+    logger.info(f"Created session: {session.code}")
+    
+    return {
+        "success": True,
+        "code": session.code,
+        "role": "user_a",
+        "message": "Share this code with your partner"
+    }
+
+
+@app.post("/api/session/{code}/join")
+async def join_session(code: str):
+    """
+    Join an existing session with a code.
+    
+    Returns:
+        success: Whether join was successful
+        role: Your role ("user_b")
+    """
+    session, result = session_manager.join_session(code)
+    
+    if not session:
+        raise HTTPException(status_code=404, detail=result)
+    
+    logger.info(f"User joined session: {code}")
+    
+    return {
+        "success": True,
+        "code": session.code,
+        "role": result,
+        "message": "Successfully joined session"
+    }
+
+
+@app.post("/api/session/{code}/upload")
+async def upload_to_session(
+    code: str,
+    role: str,
+    file: UploadFile = File(..., description="Instagram data ZIP file")
+):
+    """
+    Upload Instagram data to a session.
+    
+    Args:
+        code: Session code
+        role: Your role ("user_a" or "user_b")
+        file: The ZIP file to upload
+    """
+    # Validate session
+    session = session_manager.get_session(code)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found or expired")
+    
+    # Validate role
+    if role not in ["user_a", "user_b"]:
+        raise HTTPException(status_code=400, detail="Invalid role")
+    
+    if role == "user_b" and session.user_b is None:
+        raise HTTPException(status_code=400, detail="User B has not joined the session yet")
+    
+    # Read file with size limit
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail=f"File too large. Max size is {MAX_FILE_SIZE // (1024*1024)}MB")
+    
+    # Parse the ZIP file
+    logger.info(f"Parsing upload for {role} in session {code}")
+    try:
+        parsed_data = parse_zip_file(content)
+        
+        # Convert to dict for storage
+        parsed_dict = {
+            "following": parsed_data.following,
+            "liked_posts": parsed_data.liked_posts,
+            "saved_posts": parsed_data.saved_posts,
+            "comments": parsed_data.comments,
+            "summary": parsed_data.summary(),
+        }
+        
+        # Store in session
+        success, message = session_manager.upload_data(code, role, parsed_dict)
+        
+        if not success:
+            raise HTTPException(status_code=400, detail=message)
+        
+        logger.info(f"Upload successful for {role} in session {code}: {parsed_data.summary()}")
+        
+        # Check if both users have uploaded and start analysis
+        session = session_manager.get_session(code)
+        if session and session.both_uploaded():
+            logger.info(f"Both users uploaded for session {code}, starting analysis")
+            # Start analysis in background
+            asyncio.create_task(run_session_analysis(code))
+        
+        return {
+            "success": True,
+            "message": "Upload successful",
+            "summary": parsed_data.summary(),
+            "both_uploaded": session.both_uploaded() if session else False,
+        }
+        
+    except Exception as e:
+        logger.error(f"Error parsing upload: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail=f"Error parsing file: {str(e)}")
+
+
+@app.get("/api/session/{code}/status")
+async def get_session_status(code: str, role: str = "user_a"):
+    """
+    Get the current status of a session.
+    
+    Poll this endpoint to check if partner has joined/uploaded and get results.
+    """
+    session = session_manager.get_session(code)
+    
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found or expired")
+    
+    return {
+        "success": True,
+        **session.to_status_dict(role)
+    }
+
+
+async def run_session_analysis(code: str):
+    """Run analysis for a session (background task)."""
+    try:
+        session_manager.set_analyzing(code)
+        session = session_manager.get_session(code)
+        
+        if not session or not session.both_uploaded():
+            session_manager.set_error(code, "Missing user data")
+            return
+        
+        # Get parsed data
+        user_a_parsed = session.user_a.parsed_data
+        user_b_parsed = session.user_b.parsed_data
+        
+        # Prepare data for analysis (skip scraping for session-based flow)
+        user_a_data = {
+            "profiles": [{"username": u, "followersCount": 10000} for u in user_a_parsed.get("following", [])[:50]],
+            "reels": [],
+            "comments": user_a_parsed.get("comments", []),
+        }
+        user_b_data = {
+            "profiles": [{"username": u, "followersCount": 10000} for u in user_b_parsed.get("following", [])[:50]],
+            "reels": [],
+            "comments": user_b_parsed.get("comments", []),
+        }
+        
+        logger.info(f"Running analysis for session {code}")
+        
+        # Run LLM analysis
+        result = await analyze_and_compare(user_a_data, user_b_data)
+        
+        comparison = result["comparison"]
+        
+        # Prepare result
+        analysis_result = {
+            "success": True,
+            "vibe_score": comparison.get("vibe_score", 0),
+            "tier": comparison.get("tier", "Unknown"),
+            "tier_description": comparison.get("tier_description", ""),
+            "exact_matches": comparison.get("exact_matches", []),
+            "category_matches": comparison.get("category_matches", []),
+            "broad_overlaps": comparison.get("broad_overlaps", []),
+            "unique_to_a": comparison.get("unique_to_a", []),
+            "unique_to_b": comparison.get("unique_to_b", []),
+            "narrative": comparison.get("narrative", ""),
+            "user_a_summary": result["user_a_profile"].get("summary", ""),
+            "user_b_summary": result["user_b_profile"].get("summary", ""),
+            "user_a_interests": result["user_a_profile"].get("interests", [])[:10],
+            "user_b_interests": result["user_b_profile"].get("interests", [])[:10],
+        }
+        
+        session_manager.set_complete(code, analysis_result)
+        logger.info(f"Session {code} analysis complete: score={comparison.get('vibe_score', 0)}")
+        
+    except Exception as e:
+        logger.error(f"Session analysis failed: {e}", exc_info=True)
+        session_manager.set_error(code, str(e))
 
 
 if __name__ == "__main__":

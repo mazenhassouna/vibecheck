@@ -14,61 +14,103 @@
         </header>
 
         <main>
-            <!-- Upload Section -->
-            <section id="upload-section" class="card">
-                <h2>📤 Upload Your Data</h2>
+            <!-- Landing Section - Choose Create or Join -->
+            <section id="landing-section" class="card">
+                <h2>🤝 Connect with Someone</h2>
                 <p class="instructions">
-                    Each person needs to download their Instagram data from Meta 
-                    (<a href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank">Download here</a>)
-                    and select JSON format. Upload the ZIP file directly!
+                    Start a session and share the code, or join an existing session with a code.
                 </p>
-
-                <div class="upload-grid">
-                    <div class="upload-box" id="user-a-box">
-                        <h3>👤 Person A</h3>
-                        <div class="dropzone" id="dropzone-a">
-                        <input type="file" id="files-a" multiple accept=".zip,.json" />
-                        <label for="files-a">
-                            <span class="icon">📁</span>
-                            <span>Drop ZIP or JSON files here</span>
-                        </label>
-                        </div>
-                        <div class="file-list" id="file-list-a"></div>
-                        <div class="status" id="status-a"></div>
+                
+                <div class="action-buttons">
+                    <button id="create-session-btn" class="primary-btn large">
+                        ➕ Create Session
+                    </button>
+                    <div class="divider">
+                        <span>or</span>
                     </div>
-
-                    <div class="upload-box" id="user-b-box">
-                        <h3>👤 Person B</h3>
-                        <div class="dropzone" id="dropzone-b">
-                        <input type="file" id="files-b" multiple accept=".zip,.json" />
-                        <label for="files-b">
-                            <span class="icon">📁</span>
-                            <span>Drop ZIP or JSON files here</span>
-                        </label>
-                        </div>
-                        <div class="file-list" id="file-list-b"></div>
-                        <div class="status" id="status-b"></div>
+                    <div class="join-form">
+                        <input type="text" id="join-code-input" placeholder="Enter 6-digit code" maxlength="6" />
+                        <button id="join-session-btn" class="secondary-btn">
+                            🔗 Join Session
+                        </button>
                     </div>
                 </div>
-
-                <div class="options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="skip-scraping" />
-                        <span>Quick mode (skip Instagram profile enrichment)</span>
-                    </label>
-                </div>
-
-                <button id="analyze-btn" class="primary-btn" disabled>
-                    🔍 Analyze Compatibility
-                </button>
             </section>
 
-            <!-- Loading Section -->
-            <section id="loading-section" class="card hidden">
+            <!-- Session Created - Show Code -->
+            <section id="code-section" class="card hidden">
+                <h2>📱 Share This Code</h2>
+                <p class="instructions">Give this code to your partner to join the session</p>
+                
+                <div class="code-display">
+                    <span id="session-code" class="session-code">------</span>
+                    <button id="copy-code-btn" class="icon-btn" title="Copy code">📋</button>
+                </div>
+                
+                <div class="status-box" id="waiting-status">
+                    <div class="spinner small"></div>
+                    <span>Waiting for partner to join...</span>
+                </div>
+                
+                <p class="expire-note">⏱️ Session expires in 30 minutes</p>
+            </section>
+
+            <!-- Upload Section -->
+            <section id="upload-section" class="card hidden">
+                <h2>📤 Upload Your Instagram Data</h2>
+                <p class="instructions">
+                    Download your Instagram data from Meta 
+                    (<a href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank">Download here</a>)
+                    in JSON format, then upload the ZIP file.
+                </p>
+                
+                <div class="session-info">
+                    <span>Session: <strong id="upload-session-code">------</strong></span>
+                    <span>You are: <strong id="your-role">Person A</strong></span>
+                </div>
+
+                <div class="upload-box single">
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" id="file-input" accept=".zip" />
+                        <label for="file-input">
+                            <span class="icon">📁</span>
+                            <span>Drop your Instagram ZIP file here</span>
+                            <span class="hint">or click to browse</span>
+                        </label>
+                    </div>
+                    <div class="file-info" id="file-info"></div>
+                    <button id="upload-btn" class="primary-btn" disabled>
+                        📤 Upload Data
+                    </button>
+                </div>
+            </section>
+
+            <!-- Waiting Section -->
+            <section id="waiting-section" class="card hidden">
+                <div class="waiting-display">
+                    <div class="spinner"></div>
+                    <h2 id="waiting-title">Waiting for partner...</h2>
+                    <p id="waiting-message">Your data has been uploaded. Waiting for your partner to upload theirs.</p>
+                    
+                    <div class="status-checklist">
+                        <div class="check-item" id="check-you">
+                            <span class="check-icon">⏳</span>
+                            <span>Your upload</span>
+                        </div>
+                        <div class="check-item" id="check-partner">
+                            <span class="check-icon">⏳</span>
+                            <span>Partner's upload</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analyzing Section -->
+            <section id="analyzing-section" class="card hidden">
                 <div class="loader">
                     <div class="spinner"></div>
                     <h2>Analyzing your vibes...</h2>
-                    <p id="loading-status">Parsing Instagram data...</p>
+                    <p>Finding what you have in common...</p>
                 </div>
             </section>
 
@@ -83,14 +125,14 @@
                 </div>
 
                 <div class="narrative-box">
-                    <h3>💬 The Vibe</h3>
+                    <h3>💬 What You Have in Common</h3>
                     <p id="narrative"></p>
                 </div>
 
                 <div class="matches-grid">
                     <div class="matches-column">
                         <h3>🎯 Exact Matches</h3>
-                        <p class="column-desc">Same artists, shows, teams, or creators you both love</p>
+                        <p class="column-desc">Same artists, shows, teams, or creators you both follow</p>
                         <ul id="exact-matches" class="match-list"></ul>
                     </div>
 
@@ -110,30 +152,30 @@
                 <div class="unique-grid">
                     <div class="unique-column">
                         <h3>🅰️ Unique to Person A</h3>
-                        <p class="column-desc">Things A can introduce to B</p>
+                        <p class="column-desc">Interests A can share with B</p>
                         <ul id="unique-a" class="tag-list"></ul>
                     </div>
 
                     <div class="unique-column">
                         <h3>🅱️ Unique to Person B</h3>
-                        <p class="column-desc">Things B can introduce to A</p>
+                        <p class="column-desc">Interests B can share with A</p>
                         <ul id="unique-b" class="tag-list"></ul>
                     </div>
                 </div>
 
                 <div class="summaries">
                     <div class="summary-box">
-                        <h4>Person A's Vibe</h4>
+                        <h4>Person A's Profile</h4>
                         <p id="summary-a"></p>
                     </div>
                     <div class="summary-box">
-                        <h4>Person B's Vibe</h4>
+                        <h4>Person B's Profile</h4>
                         <p id="summary-b"></p>
                     </div>
                 </div>
 
-                <button id="reset-btn" class="secondary-btn">
-                    🔄 Start Over
+                <button id="new-session-btn" class="secondary-btn">
+                    🔄 Start New Session
                 </button>
             </section>
 
@@ -150,7 +192,7 @@
 
         <footer>
             <p>Made with ❤️ for finding connections</p>
-            <p class="privacy-note">🔒 Your data is processed locally and never stored</p>
+            <p class="privacy-note">🔒 Your data is processed securely and not stored permanently</p>
         </footer>
     </div>
 

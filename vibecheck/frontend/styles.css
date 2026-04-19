@@ -225,6 +225,200 @@ header h1 {
     transition: all 0.3s ease;
 }
 
+.primary-btn.large {
+    max-width: 400px;
+    padding: 1.25rem 2.5rem;
+    font-size: 1.2rem;
+}
+
+/* Action Buttons (Landing Page) */
+.action-buttons {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--text-muted);
+}
+
+.divider span {
+    padding: 0 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.join-form {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.join-form input {
+    flex: 1;
+    padding: 1rem;
+    border: 2px solid var(--surface-light);
+    border-radius: 0.5rem;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1.1rem;
+    text-align: center;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+}
+
+.join-form input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.join-form input::placeholder {
+    color: var(--text-muted);
+    letter-spacing: normal;
+    font-weight: normal;
+}
+
+.join-form .secondary-btn {
+    width: auto;
+    max-width: none;
+    padding: 1rem 1.5rem;
+}
+
+/* Session Code Display */
+.code-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.session-code {
+    font-size: 3rem;
+    font-weight: bold;
+    letter-spacing: 0.3em;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.icon-btn {
+    background: var(--surface-light);
+    border: none;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.icon-btn:hover {
+    background: var(--surface);
+    transform: scale(1.1);
+}
+
+.status-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--surface-light);
+    border-radius: 0.5rem;
+    margin: 1.5rem 0;
+}
+
+.spinner.small {
+    width: 24px;
+    height: 24px;
+    border-width: 3px;
+    margin: 0;
+}
+
+.expire-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Session Info (Upload Section) */
+.session-info {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
+}
+
+.session-info strong {
+    color: var(--primary);
+}
+
+.upload-box.single {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.dropzone .hint {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.file-info {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.file-info .success {
+    color: var(--success);
+}
+
+.file-info .error {
+    color: var(--error);
+}
+
+/* Waiting Section */
+.waiting-display {
+    text-align: center;
+    padding: 2rem;
+}
+
+.waiting-display h2 {
+    margin: 1rem 0 0.5rem;
+}
+
+.waiting-display p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
+.status-checklist {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--surface-light);
+    border-radius: 0.5rem;
+}
+
+.check-icon {
+    font-size: 1.25rem;
+}
+
 .primary-btn {
     background: var(--gradient);
     color: white;
