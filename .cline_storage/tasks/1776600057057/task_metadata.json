@@ -1,0 +1,92 @@
+{
+  "files_in_context": [
+    {
+      "path": "README.md",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776600063094,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/main.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776600066408,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/parser.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776600069394,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/analyzer.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776600071910,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/App.jsx",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776600075378,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/api.js",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776600078909,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/scoring_config.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776600082430,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/gemini_client.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776600085765,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/apify_client.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776600089496,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/content_analyzer.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776600092861,
+      "cline_edit_date": null,
+      "user_edit_date": null
+    }
+  ],
+  "model_usage": [
+    {
+      "ts": 1776600057098,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "plan"
+    }
+  ]
+}
