@@ -1,6 +1,8 @@
 """Instagram JSON data parser for Meta's data export format."""
 
 import json
+import zipfile
+import io
 from pathlib import Path
 from typing import Any
 from dataclasses import dataclass, field
@@ -68,10 +70,15 @@ class InstagramParser:
     def _parse_following(self, content: dict[str, Any]) -> None:
         """Extract following list from various possible structures."""
         
-        # Structure 1: relationships_following format
+        # Structure 1: relationships_following format (actual Instagram export format)
+        # The username is in the "title" field, not string_list_data
         if "relationships_following" in content:
             for item in content["relationships_following"]:
-                if "string_list_data" in item:
+                # Username is in the title field
+                if "title" in item:
+                    self.data.following.append(item["title"])
+                # Fallback to string_list_data if title not present
+                elif "string_list_data" in item:
                     for string_data in item["string_list_data"]:
                         if "value" in string_data:
                             self.data.following.append(string_data["value"])
@@ -79,10 +86,13 @@ class InstagramParser:
         # Structure 2: Direct following array
         elif isinstance(content, list):
             for item in content:
-                if isinstance(item, dict) and "string_list_data" in item:
-                    for string_data in item["string_list_data"]:
-                        if "value" in string_data:
-                            self.data.following.append(string_data["value"])
+                if isinstance(item, dict):
+                    if "title" in item:
+                        self.data.following.append(item["title"])
+                    elif "string_list_data" in item:
+                        for string_data in item["string_list_data"]:
+                            if "value" in string_data:
+                                self.data.following.append(string_data["value"])
         
         # Structure 3: followers_and_following folder format
         if "following" in content:
@@ -92,7 +102,7 @@ class InstagramParser:
                     if isinstance(item, str):
                         self.data.following.append(item)
                     elif isinstance(item, dict):
-                        username = item.get("username") or item.get("value") or item.get("name")
+                        username = item.get("title") or item.get("username") or item.get("value") or item.get("name")
                         if username:
                             self.data.following.append(username)
     
@@ -251,3 +261,111 @@ def parse_multiple_files(file_contents: list[tuple[str, dict[str, Any]]]) -> Par
         parser.parse_json_content(content, filename)
     
     return parser.data
+
+
+# Relevant file patterns in Instagram data export
+RELEVANT_FILE_PATTERNS = [
+    "following.json",
+    "followers_1.json",
+    "liked_posts.json",
+    "liked_comments.json", 
+    "saved_posts.json",
+    "saved_collections.json",
+    "post_comments.json",
+    "post_comments_1.json",
+    "reels_comments.json",
+    "story_likes.json",
+    "likes.json",
+    "recommended_topics.json",
+]
+
+# Folder patterns to match
+RELEVANT_FOLDER_PATTERNS = [
+    "followers_and_following",
+    "likes",
+    "saved",
+    "comments",
+    "your_topics",
+]
+
+
+def parse_zip_file(zip_bytes: bytes) -> ParsedInstagramData:
+    """
+    Parse an Instagram data export ZIP file.
+    
+    Args:
+        zip_bytes: Raw bytes of the ZIP file
+        
+    Returns:
+        ParsedInstagramData with all extracted data
+    """
+    parser = InstagramParser()
+    
+    with zipfile.ZipFile(io.BytesIO(zip_bytes), 'r') as zf:
+        # Get list of all files in the ZIP
+        file_list = zf.namelist()
+        
+        for file_path in file_list:
+            # Skip directories
+            if file_path.endswith('/'):
+                continue
+            
+            # Only process JSON files
+            if not file_path.lower().endswith('.json'):
+                continue
+            
+            # Check if this is a relevant file
+            filename = Path(file_path).name.lower()
+            is_relevant = any(pattern in filename for pattern in RELEVANT_FILE_PATTERNS)
+            
+            # Also check folder-based patterns
+            is_relevant = is_relevant or any(folder in file_path.lower() for folder in RELEVANT_FOLDER_PATTERNS)
+            
+            if not is_relevant:
+                continue
+            
+            try:
+                # Read and parse the JSON file
+                with zf.open(file_path) as f:
+                    content = f.read()
+                    
+                    # Try to decode as UTF-8, fall back to latin-1
+                    try:
+                        json_str = content.decode('utf-8')
+                    except UnicodeDecodeError:
+                        json_str = content.decode('latin-1')
+                    
+                    json_data = json.loads(json_str)
+                    parser.parse_json_content(json_data, file_path)
+                    
+            except (json.JSONDecodeError, KeyError) as e:
+                # Skip files that can't be parsed
+                print(f"Skipping {file_path}: {e}")
+                continue
+    
+    return parser.data
+
+
+def parse_zip_or_json(file_bytes: bytes, filename: str) -> ParsedInstagramData:
+    """
+    Parse either a ZIP file or a JSON file based on the filename.
+    
+    Args:
+        file_bytes: Raw bytes of the file
+        filename: Name of the file (used to detect type)
+        
+    Returns:
+        ParsedInstagramData with extracted data
+    """
+    if filename.lower().endswith('.zip'):
+        return parse_zip_file(file_bytes)
+    elif filename.lower().endswith('.json'):
+        parser = InstagramParser()
+        try:
+            json_str = file_bytes.decode('utf-8')
+        except UnicodeDecodeError:
+            json_str = file_bytes.decode('latin-1')
+        json_data = json.loads(json_str)
+        return parser.parse_json_content(json_data, filename)
+    else:
+        raise ValueError(f"Unsupported file type: {filename}")

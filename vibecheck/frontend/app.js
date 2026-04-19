@@ -94,7 +94,9 @@ function handleFileSelect(event, user) {
 }
 
 function handleFiles(files, user) {
-    const fileArray = Array.from(files).filter(f => f.name.endsWith('.json'));
+    const fileArray = Array.from(files).filter(f => 
+        f.name.endsWith('.json') || f.name.endsWith('.zip')
+    );
     
     if (user === 'A') {
         state.userAFiles = [...state.userAFiles, ...fileArray];

@@ -20,18 +20,18 @@
                 <p class="instructions">
                     Each person needs to download their Instagram data from Meta 
                     (<a href="https://accountscenter.instagram.com/info_and_permissions/dyi/" target="_blank">Download here</a>)
-                    and select JSON format.
+                    and select JSON format. Upload the ZIP file directly!
                 </p>
 
                 <div class="upload-grid">
                     <div class="upload-box" id="user-a-box">
                         <h3>👤 Person A</h3>
                         <div class="dropzone" id="dropzone-a">
-                            <input type="file" id="files-a" multiple accept=".json" />
-                            <label for="files-a">
-                                <span class="icon">📁</span>
-                                <span>Drop JSON files here or click to browse</span>
-                            </label>
+                        <input type="file" id="files-a" multiple accept=".zip,.json" />
+                        <label for="files-a">
+                            <span class="icon">📁</span>
+                            <span>Drop ZIP or JSON files here</span>
+                        </label>
                         </div>
                         <div class="file-list" id="file-list-a"></div>
                         <div class="status" id="status-a"></div>
@@ -40,11 +40,11 @@
                     <div class="upload-box" id="user-b-box">
                         <h3>👤 Person B</h3>
                         <div class="dropzone" id="dropzone-b">
-                            <input type="file" id="files-b" multiple accept=".json" />
-                            <label for="files-b">
-                                <span class="icon">📁</span>
-                                <span>Drop JSON files here or click to browse</span>
-                            </label>
+                        <input type="file" id="files-b" multiple accept=".zip,.json" />
+                        <label for="files-b">
+                            <span class="icon">📁</span>
+                            <span>Drop ZIP or JSON files here</span>
+                        </label>
                         </div>
                         <div class="file-list" id="file-list-b"></div>
                         <div class="status" id="status-b"></div>

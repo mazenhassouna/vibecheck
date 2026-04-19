@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from config import config
-from parser import InstagramParser, ParsedInstagramData
+from parser import InstagramParser, ParsedInstagramData, parse_zip_file
 from instagram_scraper import enrich_user_data, extract_profile_info, extract_reel_info
 from llm_analyzer import analyze_and_compare
 
@@ -146,43 +146,54 @@ async def parse_multiple_files(files: list[UploadFile] = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+async def parse_user_files(files: list[UploadFile]) -> ParsedInstagramData:
+    """Parse user files, supporting both ZIP and JSON formats."""
+    parser = InstagramParser()
+    
+    for file in files:
+        content = await file.read()
+        filename = file.filename or ""
+        
+        try:
+            if filename.lower().endswith('.zip'):
+                # Parse ZIP file
+                zip_data = parse_zip_file(content)
+                parser.merge_data(zip_data)
+            elif filename.lower().endswith('.json'):
+                # Parse JSON file
+                try:
+                    json_str = content.decode('utf-8')
+                except UnicodeDecodeError:
+                    json_str = content.decode('latin-1')
+                json_data = json.loads(json_str)
+                parser.parse_json_content(json_data, filename)
+        except Exception as e:
+            print(f"Error parsing {filename}: {e}")
+            continue
+    
+    return parser.data
+
+
 @app.post("/api/analyze")
 async def analyze_users(
-    user_a_files: list[UploadFile] = File(..., description="User A's Instagram data files"),
-    user_b_files: list[UploadFile] = File(..., description="User B's Instagram data files"),
+    user_a_files: list[UploadFile] = File(..., description="User A's Instagram data files (ZIP or JSON)"),
+    user_b_files: list[UploadFile] = File(..., description="User B's Instagram data files (ZIP or JSON)"),
     skip_scraping: bool = False
 ):
     """
     Full analysis pipeline: parse, enrich, and compare two users.
     
+    Accepts ZIP files (Instagram data export) or individual JSON files.
+    
     Args:
-        user_a_files: Instagram JSON export files for User A
-        user_b_files: Instagram JSON export files for User B
-        skip_scraping: If True, skip Apify scraping (for testing)
+        user_a_files: Instagram data files for User A (ZIP or JSON)
+        user_b_files: Instagram data files for User B (ZIP or JSON)
+        skip_scraping: If True, skip Apify scraping (for testing/quick mode)
     """
     try:
-        # Parse both users' data
-        parser_a = InstagramParser()
-        parser_b = InstagramParser()
-        
-        for file in user_a_files:
-            content = await file.read()
-            try:
-                json_data = json.loads(content.decode("utf-8"))
-                parser_a.parse_json_content(json_data, file.filename)
-            except json.JSONDecodeError:
-                continue
-        
-        for file in user_b_files:
-            content = await file.read()
-            try:
-                json_data = json.loads(content.decode("utf-8"))
-                parser_b.parse_json_content(json_data, file.filename)
-            except json.JSONDecodeError:
-                continue
-        
-        parsed_a = parser_a.data
-        parsed_b = parser_b.data
+        # Parse both users' data (supports ZIP and JSON)
+        parsed_a = await parse_user_files(user_a_files)
+        parsed_b = await parse_user_files(user_b_files)
         
         # Prepare data for analysis
         if skip_scraping:

@@ -16,7 +16,7 @@ Vibecheck analyzes Instagram data exports from two people and uses AI to identif
 
 ## 📋 Prerequisites
 
-- Python 3.10+
+- **Python 3.10, 3.11, or 3.12** (Python 3.13+ not yet supported due to pydantic-core compatibility)
 - A Google Gemini API key (free tier available)
 - An Apify API key (free tier with $5 credit)
 
@@ -77,12 +77,13 @@ Each person needs to download their Instagram data from Meta:
    - **Your activity** → Likes, Saved, Comments
 5. Choose **JSON** format (important!)
 6. Submit request and wait for download (usually 1-2 days)
+7. You'll receive a ZIP file - upload it directly to Vibecheck!
 
 ## 🎯 Usage
 
 1. Open http://localhost:8000
-2. Upload Person A's Instagram JSON files
-3. Upload Person B's Instagram JSON files
+2. Upload Person A's Instagram data ZIP file
+3. Upload Person B's Instagram data ZIP file
 4. Click "Analyze Compatibility"
 5. View your vibe score and shared interests!
 
