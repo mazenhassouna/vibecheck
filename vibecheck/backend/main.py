@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 from config import config
 from parser import InstagramParser, ParsedInstagramData
-from apify_client import enrich_user_data, extract_profile_info, extract_reel_info
+from instagram_scraper import enrich_user_data, extract_profile_info, extract_reel_info
 from llm_analyzer import analyze_and_compare
 
 # Create FastAPI app

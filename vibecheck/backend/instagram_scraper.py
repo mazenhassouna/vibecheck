@@ -1,8 +1,8 @@
-"""Apify client for Instagram scraping."""
+"""Instagram scraper using Apify."""
 
 import asyncio
 from typing import Any
-from apify_client import ApifyClient
+import apify_client as apify_lib
 from config import config
 
 
@@ -12,7 +12,7 @@ class InstagramScraper:
     def __init__(self):
         if not config.APIFY_API_KEY:
             raise ValueError("APIFY_API_KEY is required")
-        self.client = ApifyClient(config.APIFY_API_KEY)
+        self.client = apify_lib.ApifyClient(config.APIFY_API_KEY)
     
     async def scrape_profiles(
         self, 
