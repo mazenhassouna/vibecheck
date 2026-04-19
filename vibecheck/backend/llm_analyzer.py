@@ -129,24 +129,31 @@ class InterestAnalyzer:
 
 ## {user_label}'s Instagram Data:
 
-### Accounts They Follow (filtered to 5000+ followers):
-{data_summary['following_summary']}
-
-### Content They've Engaged With (likes, saves):
+### Content They've Engaged With (likes, saves) - PRIMARY SIGNAL:
 {data_summary['content_summary']}
 
-### Comments They've Made:
+### Accounts They Follow (filtered to 5000+ followers) - SECONDARY SIGNAL:
+{data_summary['following_summary']}
+
+### Comments They've Made - STRONG SIGNAL:
 {data_summary['comments_summary']}
+
+## IMPORTANT - Signal Strength Hierarchy:
+**Content engagement (likes/saves) is a STRONGER signal than just following an account.**
+A user who likes 5 reels from an artist is MORE interested than someone who just follows them.
+Following is passive; liking/saving is active engagement.
 
 ## Instructions:
 1. Identify specific interests (entities like artists, athletes, shows, brands)
 2. Categorize each interest hierarchically (e.g., "Music > Hip-Hop > Artists")
-3. Assign a weight from 1-10 based on engagement intensity:
-   - 10: Obsessed (multiple signals: follows + likes + saves + comments)
-   - 7-9: Very interested (strong engagement, multiple interactions)
-   - 4-6: Interested (follows or occasional engagement)
-   - 1-3: Mild interest (single weak signal)
-4. Provide concrete evidence for each interest
+3. Assign a weight from 1-10 based on ENGAGEMENT intensity (prioritize likes/saves over follows):
+   - 10: Obsessed (multiple reels liked/saved + follows + comments on that topic)
+   - 8-9: Very interested (multiple reels liked/saved on topic, even without following)
+   - 6-7: Strong interest (saved posts OR 3+ liked reels on topic)
+   - 4-5: Moderate interest (follows account + 1-2 liked reels)
+   - 2-3: Mild interest (just follows, no likes/saves/comments)
+   - 1: Weak signal (single liked reel, no follow)
+4. Provide concrete evidence for each interest, highlighting ENGAGEMENT signals
 
 ## Output Format (JSON):
 {{
