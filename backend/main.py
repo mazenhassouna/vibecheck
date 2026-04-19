@@ -19,6 +19,8 @@ from parser import parse_instagram_export
 from analyzer import analyze_compatibility
 from gemini_client import create_gemini_client
 from scoring_config import SCORING_CONFIG, ALLOWED_FILES
+from apify_client import ReelAnalyzer, extract_reel_urls_from_export, APIFY_AVAILABLE
+from content_analyzer import ContentAnalyzer
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -41,6 +43,10 @@ sessions: Dict[str, Dict] = {}
 
 # Session expiry time
 SESSION_EXPIRY_HOURS = 24
+
+# Content analysis settings
+ENABLE_REEL_ANALYSIS = True  # Set to False to disable Apify calls
+MAX_REELS_TO_ANALYZE = 30
 
 
 # Pydantic models
@@ -236,6 +242,38 @@ async def upload_data(
         # Parse the Instagram export
         parsed_data = parse_instagram_export(content)
         
+        # Enrich with reel content analysis (if enabled)
+        if ENABLE_REEL_ANALYSIS and APIFY_AVAILABLE:
+            try:
+                print(f"[Session {session_code}] Starting reel content analysis for person {person.upper()}...")
+                
+                # Extract reel URLs
+                reel_urls = extract_reel_urls_from_export(parsed_data)
+                print(f"[Session {session_code}] Found {len(reel_urls)} reel URLs")
+                
+                if reel_urls:
+                    # Analyze reels with Apify
+                    reel_analyzer = ReelAnalyzer()
+                    reel_content = reel_analyzer.analyze_reels(reel_urls, MAX_REELS_TO_ANALYZE)
+                    parsed_data["reel_content"] = reel_content
+                    print(f"[Session {session_code}] Got {len(reel_content)} reel analyses")
+                    
+                    # Use Gemini to extract themes from reel content
+                    if reel_content:
+                        content_analyzer = ContentAnalyzer()
+                        content_analysis = content_analyzer.analyze_reels(reel_content)
+                        parsed_data["content_analysis"] = content_analysis
+                        print(f"[Session {session_code}] Content analysis complete: {content_analysis.get('themes', [])}")
+                else:
+                    parsed_data["reel_content"] = []
+                    parsed_data["content_analysis"] = None
+                    
+            except Exception as e:
+                print(f"[Session {session_code}] Reel analysis failed: {e}")
+                parsed_data["reel_content"] = []
+                parsed_data["content_analysis"] = None
+                parsed_data["content_analysis_error"] = str(e)
+        
         # Store parsed data (not raw file)
         session[person_key] = parsed_data
         
@@ -250,6 +288,34 @@ async def upload_data(
                     session["person_a"],
                     session["person_b"]
                 )
+                
+                # Add content-based analysis if available
+                if (session["person_a"].get("content_analysis") and 
+                    session["person_b"].get("content_analysis")):
+                    content_analyzer = ContentAnalyzer()
+                    content_comparison = content_analyzer.compare_users(
+                        session["person_a"]["content_analysis"],
+                        session["person_b"]["content_analysis"]
+                    )
+                    result["content_comparison"] = content_comparison
+                    
+                    # Boost score based on content similarity
+                    content_boost = min(content_comparison.get("theme_similarity", 0) * 0.15, 10)
+                    result["score"] = min(result["score"] + int(content_boost), 100)
+                    result["content_boost"] = round(content_boost, 1)
+                    
+                    # Add AI-identified themes to shared interests
+                    for theme in content_comparison.get("shared_themes", []):
+                        if not any(i.get("theme") == theme for i in result.get("shared_interests", [])):
+                            result["shared_interests"].append({
+                                "type": "ai_identified",
+                                "theme": theme,
+                                "emoji": "🤖",
+                                "quality": "AI Detected",
+                                "examples": [],
+                                "ways_to_connect": [],
+                                "description": f"🤖 {theme} (AI detected from reel content)",
+                            })
                 
                 # Try to enhance with Gemini
                 gemini = create_gemini_client()

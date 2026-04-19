@@ -13,3 +13,6 @@ pydantic>=1.8.0,<2.0.0
 
 # Type hints
 typing-extensions>=3.7.4
+
+# Apify client for Instagram reel scraping
+apify-client>=1.0.0

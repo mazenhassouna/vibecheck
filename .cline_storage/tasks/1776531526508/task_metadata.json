@@ -26,7 +26,7 @@
     },
     {
       "path": "backend/gemini_client.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776535533594,
       "cline_edit_date": 1776535533594,
@@ -34,7 +34,7 @@
     },
     {
       "path": "backend/main.py",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776535583265,
       "cline_edit_date": 1776535583265,
@@ -42,7 +42,7 @@
     },
     {
       "path": "backend/requirements.txt",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776535612111,
       "cline_edit_date": 1776535612111,
@@ -394,7 +394,7 @@
     },
     {
       "path": "frontend/src/components/ResultsPage.jsx",
-      "record_state": "active",
+      "record_state": "stale",
       "record_source": "cline_edited",
       "cline_read_date": 1776552952870,
       "cline_edit_date": 1776552952870,
@@ -486,6 +486,94 @@
       "record_source": "cline_edited",
       "cline_read_date": 1776553643275,
       "cline_edit_date": 1776553643275,
+      "user_edit_date": null
+    },
+    {
+      "path": ".git/logs/HEAD",
+      "record_state": "active",
+      "record_source": "user_edited",
+      "cline_read_date": null,
+      "cline_edit_date": null,
+      "user_edit_date": 1776559419091
+    },
+    {
+      "path": "backend/apify_client.py",
+      "record_state": "stale",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776564736553,
+      "cline_edit_date": 1776564736553,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/content_analyzer.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776564795289,
+      "cline_edit_date": 1776564795289,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/main.py",
+      "record_state": "stale",
+      "record_source": "read_tool",
+      "cline_read_date": 1776564805576,
+      "cline_edit_date": 1776535583265,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/main.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776564837545,
+      "cline_edit_date": 1776564837545,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/requirements.txt",
+      "record_state": "stale",
+      "record_source": "read_tool",
+      "cline_read_date": 1776564848053,
+      "cline_edit_date": 1776535612111,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/requirements.txt",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776564876744,
+      "cline_edit_date": 1776564876744,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/ResultsPage.jsx",
+      "record_state": "stale",
+      "record_source": "read_tool",
+      "cline_read_date": 1776564884976,
+      "cline_edit_date": 1776552952870,
+      "user_edit_date": null
+    },
+    {
+      "path": "frontend/src/components/ResultsPage.jsx",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776564928082,
+      "cline_edit_date": 1776564928082,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/apify_client.py",
+      "record_state": "active",
+      "record_source": "cline_edited",
+      "cline_read_date": 1776572462399,
+      "cline_edit_date": 1776572462399,
+      "user_edit_date": null
+    },
+    {
+      "path": "backend/gemini_client.py",
+      "record_state": "active",
+      "record_source": "read_tool",
+      "cline_read_date": 1776572602191,
+      "cline_edit_date": 1776535533594,
       "user_edit_date": null
     }
   ],
@@ -582,6 +670,30 @@
     },
     {
       "ts": 1776553284026,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "act"
+    },
+    {
+      "ts": 1776559973972,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "plan"
+    },
+    {
+      "ts": 1776564685180,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "act"
+    },
+    {
+      "ts": 1776572212910,
+      "model_id": "claude-opus-4-5-20251101",
+      "model_provider_id": "anthropic",
+      "mode": "plan"
+    },
+    {
+      "ts": 1776572400985,
       "model_id": "claude-opus-4-5-20251101",
       "model_provider_id": "anthropic",
       "mode": "act"

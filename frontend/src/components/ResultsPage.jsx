@@ -1,5 +1,14 @@
 export default function ResultsPage({ result, onStartOver }) {
-  const { score, label, breakdown, shared_interests, bonus_points, relationship_summary } = result
+  const { 
+    score, 
+    label, 
+    breakdown, 
+    shared_interests, 
+    bonus_points, 
+    relationship_summary,
+    content_comparison,
+    content_boost 
+  } = result
 
   // Calculate circle progress
   const circumference = 2 * Math.PI * 45
@@ -75,6 +84,51 @@ export default function ResultsPage({ result, onStartOver }) {
         </div>
       )}
 
+      {/* AI Content Analysis Badge */}
+      {content_comparison && content_comparison.shared_themes?.length > 0 && (
+        <div className="card p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🤖</span>
+            <h3 className="text-sm font-semibold text-blue-300">
+              AI Content Analysis
+            </h3>
+            {content_boost > 0 && (
+              <span className="text-xs bg-blue-500/30 text-blue-200 px-2 py-0.5 rounded-full ml-auto">
+                +{content_boost}% boost
+              </span>
+            )}
+          </div>
+          <p className="text-white/70 text-sm mb-3">
+            Based on analyzing the actual content of reels you both engage with:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {content_comparison.shared_themes.map((theme, i) => (
+              <span 
+                key={i}
+                className="text-sm bg-blue-500/20 text-blue-200 px-3 py-1 rounded-full border border-blue-500/30"
+              >
+                {theme}
+              </span>
+            ))}
+          </div>
+          {content_comparison.shared_interests?.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-white/10">
+              <p className="text-xs text-white/50 mb-2">Specific shared interests detected:</p>
+              <div className="flex flex-wrap gap-2">
+                {content_comparison.shared_interests.map((interest, i) => (
+                  <span 
+                    key={i}
+                    className="text-xs bg-white/10 text-white/70 px-2 py-1 rounded"
+                  >
+                    {interest}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Shared interests with examples */}
       {shared_interests && shared_interests.length > 0 && (
         <div className="card p-6">
@@ -99,11 +153,18 @@ export default function ResultsPage({ result, onStartOver }) {
                   <span className="text-white font-semibold text-lg">
                     {interest.emoji} {interest.theme}
                   </span>
-                  {interest.quality === 'Strong match' && (
-                    <span className="text-xs bg-green-500/30 text-green-300 px-2 py-1 rounded-full">
-                      ⭐ Strong
-                    </span>
-                  )}
+                  <div className="flex gap-2">
+                    {interest.type === 'ai_identified' && (
+                      <span className="text-xs bg-blue-500/30 text-blue-300 px-2 py-1 rounded-full">
+                        🤖 AI
+                      </span>
+                    )}
+                    {interest.quality === 'Strong match' && (
+                      <span className="text-xs bg-green-500/30 text-green-300 px-2 py-1 rounded-full">
+                        ⭐ Strong
+                      </span>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Examples - only for matches with exact overlaps */}
