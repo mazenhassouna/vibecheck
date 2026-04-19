@@ -2,23 +2,33 @@
 
 import json
 import asyncio
+import logging
 from typing import Any
 import google.generativeai as genai
 from config import config
 
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Configure Gemini
 if config.GEMINI_API_KEY:
     genai.configure(api_key=config.GEMINI_API_KEY)
+    logger.info("Gemini API configured")
+else:
+    logger.warning("GEMINI_API_KEY not set")
 
 
 def extract_json_from_response(text: str) -> dict[str, Any]:
     """Extract JSON from LLM response, handling markdown code blocks."""
+    logger.debug(f"Attempting to extract JSON from response ({len(text)} chars)")
+    
     # Try direct JSON parse first
     try:
-        return json.loads(text)
+        result = json.loads(text)
+        logger.debug("Direct JSON parse successful")
+        return result
     except json.JSONDecodeError:
-        pass
+        logger.debug("Direct JSON parse failed, trying other methods")
     
     # Try to extract from markdown code blocks
     import re
@@ -33,7 +43,9 @@ def extract_json_from_response(text: str) -> dict[str, Any]:
         match = re.search(pattern, text)
         if match:
             try:
-                return json.loads(match.group(1))
+                result = json.loads(match.group(1))
+                logger.debug("Extracted JSON from code block")
+                return result
             except json.JSONDecodeError:
                 continue
     
@@ -42,10 +54,13 @@ def extract_json_from_response(text: str) -> dict[str, Any]:
     end = text.rfind('}')
     if start != -1 and end != -1 and end > start:
         try:
-            return json.loads(text[start:end + 1])
+            result = json.loads(text[start:end + 1])
+            logger.debug("Extracted JSON from text substring")
+            return result
         except json.JSONDecodeError:
             pass
     
+    logger.error(f"Could not extract JSON. Response preview: {text[:500]}...")
     raise json.JSONDecodeError("Could not extract JSON from response", text, 0)
 
 
@@ -101,8 +116,14 @@ class InterestAnalyzer:
         Returns:
             Structured interest taxonomy with weights
         """
+        logger.info(f"[Stage 1] Analyzing {user_label} interests")
+        logger.info(f"  - Profiles: {len(profiles)}")
+        logger.info(f"  - Reels: {len(reels)}")
+        logger.info(f"  - Comments: {len(comments)}")
+        
         # Prepare the data summary for the LLM
         data_summary = self._prepare_user_data_summary(profiles, reels, comments)
+        logger.debug(f"Data summary prepared for {user_label}")
         
         prompt = f"""Analyze this Instagram user's data and create a weighted interest taxonomy.
 
@@ -154,17 +175,22 @@ class InterestAnalyzer:
 Be thorough but focus on the strongest signals. Limit to top 20 interests."""
 
         # Run the LLM call
+        logger.info(f"[Stage 1] Calling Gemini for {user_label}...")
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(
             None,
             lambda: self.model.generate_content(prompt)
         )
+        logger.info(f"[Stage 1] Gemini response received for {user_label} ({len(response.text)} chars)")
         
         try:
             result = extract_json_from_response(response.text)
             result["user_label"] = user_label
+            logger.info(f"[Stage 1] {user_label} analysis complete: {len(result.get('interests', []))} interests found")
+            logger.debug(f"[Stage 1] {user_label} summary: {result.get('summary', 'N/A')}")
             return result
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            logger.error(f"[Stage 1] Failed to parse {user_label} response: {e}")
             # If JSON parsing fails, return a minimal structure
             return {
                 "user_label": user_label,
@@ -189,6 +215,10 @@ Be thorough but focus on the strongest signals. Limit to top 20 interests."""
         Returns:
             Comparison result with score, matches, and narrative
         """
+        logger.info("[Stage 2] Comparing user profiles")
+        logger.info(f"  - User A interests: {len(user_a_profile.get('interests', []))}")
+        logger.info(f"  - User B interests: {len(user_b_profile.get('interests', []))}")
+        
         prompt = f"""Compare these two Instagram users' interest profiles and calculate their vibe compatibility.
 
 ## User A's Interests:
@@ -250,11 +280,13 @@ Summary: {user_b_profile.get('summary', 'N/A')}
 Be accurate and specific. The narrative should feel personal and insightful."""
 
         # Run the LLM call
+        logger.info("[Stage 2] Calling Gemini for comparison...")
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(
             None,
             lambda: self.model.generate_content(prompt)
         )
+        logger.info(f"[Stage 2] Gemini response received ({len(response.text)} chars)")
         
         try:
             result = extract_json_from_response(response.text)
@@ -263,8 +295,12 @@ Be accurate and specific. The narrative should feel personal and insightful."""
             tier = get_vibe_tier(score)
             result["tier"] = tier["label"]
             result["tier_description"] = tier["description"]
+            logger.info(f"[Stage 2] Comparison complete - Vibe Score: {score}, Tier: {tier['label']}")
+            logger.info(f"[Stage 2] Exact matches: {len(result.get('exact_matches', []))}")
+            logger.info(f"[Stage 2] Category matches: {len(result.get('category_matches', []))}")
             return result
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            logger.error(f"[Stage 2] Failed to parse comparison response: {e}")
             return {
                 "vibe_score": 0,
                 "tier": "❓ Unknown",

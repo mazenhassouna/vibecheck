@@ -24,7 +24,7 @@ class Config:
     MIN_FOLLOWER_COUNT: int = 5000
     
     # LLM Settings
-    LLM_MODEL: str = "gemini-1.5-flash"
+    LLM_MODEL: str = "gemini-pro"
     LLM_TEMPERATURE: float = 0.0  # Deterministic outputs
     
     @classmethod

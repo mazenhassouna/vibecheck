@@ -3,9 +3,13 @@
 import json
 import zipfile
 import io
+import logging
 from pathlib import Path
 from typing import Any
 from dataclasses import dataclass, field
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -299,11 +303,14 @@ def parse_zip_file(zip_bytes: bytes) -> ParsedInstagramData:
     Returns:
         ParsedInstagramData with all extracted data
     """
+    logger.info(f"Parsing ZIP file ({len(zip_bytes)} bytes)")
     parser = InstagramParser()
+    files_processed = 0
     
     with zipfile.ZipFile(io.BytesIO(zip_bytes), 'r') as zf:
         # Get list of all files in the ZIP
         file_list = zf.namelist()
+        logger.info(f"ZIP contains {len(file_list)} files")
         
         for file_path in file_list:
             # Skip directories
@@ -324,6 +331,8 @@ def parse_zip_file(zip_bytes: bytes) -> ParsedInstagramData:
             if not is_relevant:
                 continue
             
+            logger.debug(f"Processing relevant file: {file_path}")
+            
             try:
                 # Read and parse the JSON file
                 with zf.open(file_path) as f:
@@ -336,13 +345,36 @@ def parse_zip_file(zip_bytes: bytes) -> ParsedInstagramData:
                         json_str = content.decode('latin-1')
                     
                     json_data = json.loads(json_str)
+                    
+                    # Log the keys found in this file
+                    if isinstance(json_data, dict):
+                        logger.debug(f"  Keys in {Path(file_path).name}: {list(json_data.keys())}")
+                    
+                    before_following = len(parser.data.following)
+                    before_likes = len(parser.data.liked_posts)
+                    before_saved = len(parser.data.saved_posts)
+                    before_comments = len(parser.data.comments)
+                    
                     parser.parse_json_content(json_data, file_path)
+                    
+                    # Log what was extracted
+                    new_following = len(parser.data.following) - before_following
+                    new_likes = len(parser.data.liked_posts) - before_likes
+                    new_saved = len(parser.data.saved_posts) - before_saved
+                    new_comments = len(parser.data.comments) - before_comments
+                    
+                    if new_following > 0 or new_likes > 0 or new_saved > 0 or new_comments > 0:
+                        logger.info(f"  {Path(file_path).name}: +{new_following} following, +{new_likes} likes, +{new_saved} saved, +{new_comments} comments")
+                    
+                    files_processed += 1
                     
             except (json.JSONDecodeError, KeyError) as e:
                 # Skip files that can't be parsed
-                print(f"Skipping {file_path}: {e}")
+                logger.warning(f"Skipping {file_path}: {e}")
                 continue
     
+    logger.info(f"ZIP parsing complete: {files_processed} files processed")
+    logger.info(f"Final counts: {parser.data.summary()}")
     return parser.data
 
 

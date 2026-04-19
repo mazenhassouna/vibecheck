@@ -2,10 +2,19 @@
 
 import json
 import asyncio
+import logging
 from typing import Any
 from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -148,19 +157,24 @@ async def parse_multiple_files(files: list[UploadFile] = File(...)):
 
 async def parse_user_files(files: list[UploadFile]) -> ParsedInstagramData:
     """Parse user files, supporting both ZIP and JSON formats."""
+    logger.info(f"Parsing {len(files)} files")
     parser = InstagramParser()
     
     for file in files:
         content = await file.read()
         filename = file.filename or ""
+        logger.info(f"Processing file: {filename} ({len(content)} bytes)")
         
         try:
             if filename.lower().endswith('.zip'):
                 # Parse ZIP file
+                logger.info(f"Detected ZIP file: {filename}")
                 zip_data = parse_zip_file(content)
+                logger.info(f"ZIP parsed: {zip_data.summary()}")
                 parser.merge_data(zip_data)
             elif filename.lower().endswith('.json'):
                 # Parse JSON file
+                logger.info(f"Detected JSON file: {filename}")
                 try:
                     json_str = content.decode('utf-8')
                 except UnicodeDecodeError:
@@ -168,9 +182,10 @@ async def parse_user_files(files: list[UploadFile]) -> ParsedInstagramData:
                 json_data = json.loads(json_str)
                 parser.parse_json_content(json_data, filename)
         except Exception as e:
-            print(f"Error parsing {filename}: {e}")
+            logger.error(f"Error parsing {filename}: {e}", exc_info=True)
             continue
     
+    logger.info(f"Total parsed data: {parser.data.summary()}")
     return parser.data
 
 
@@ -190,13 +205,22 @@ async def analyze_users(
         user_b_files: Instagram data files for User B (ZIP or JSON)
         skip_scraping: If True, skip Apify scraping (for testing/quick mode)
     """
+    logger.info("="*50)
+    logger.info("Starting analysis request")
+    logger.info(f"User A files: {[f.filename for f in user_a_files]}")
+    logger.info(f"User B files: {[f.filename for f in user_b_files]}")
+    logger.info(f"Skip scraping: {skip_scraping}")
+    
     try:
         # Parse both users' data (supports ZIP and JSON)
+        logger.info("Parsing User A files...")
         parsed_a = await parse_user_files(user_a_files)
+        logger.info("Parsing User B files...")
         parsed_b = await parse_user_files(user_b_files)
         
         # Prepare data for analysis
         if skip_scraping:
+            logger.info("Skip scraping enabled - using parsed data directly")
             # Use parsed data directly without enrichment
             user_a_data = {
                 "profiles": [{"username": u, "followersCount": 10000} for u in parsed_a.following[:50]],
@@ -208,6 +232,8 @@ async def analyze_users(
                 "reels": [],
                 "comments": parsed_b.comments,
             }
+            logger.info(f"User A: {len(user_a_data['profiles'])} profiles, {len(user_a_data['comments'])} comments")
+            logger.info(f"User B: {len(user_b_data['profiles'])} profiles, {len(user_b_data['comments'])} comments")
         else:
             # Enrich with Apify scraping
             liked_urls_a = [p.get("url", "") for p in parsed_a.liked_posts if p.get("url")]
@@ -233,9 +259,14 @@ async def analyze_users(
             }
         
         # Run LLM analysis
+        logger.info("Starting LLM analysis...")
         result = await analyze_and_compare(user_a_data, user_b_data)
         
+        logger.info("LLM analysis complete")
         comparison = result["comparison"]
+        logger.info(f"Vibe Score: {comparison.get('vibe_score', 'N/A')}")
+        logger.info(f"Tier: {comparison.get('tier', 'N/A')}")
+        logger.info("="*50)
         
         return {
             "success": True,
@@ -254,6 +285,7 @@ async def analyze_users(
             "user_b_interests": result["user_b_profile"].get("interests", [])[:10],
         }
     except Exception as e:
+        logger.error(f"Analysis failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
